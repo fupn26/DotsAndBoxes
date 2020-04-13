@@ -24,5 +24,17 @@ namespace DotsAndBoxes
         {
             InitializeComponent();
         }
+
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            //ScorePlayer1.Text = "Left mouse pressed";
+            //Console.WriteLine("Left mouse pressed");
+        }
+
+        private void Window_MouseMove(object sender, MouseEventArgs e)
+        {
+            //ScorePlayer2.Text = "MouseMove";
+            //Console.WriteLine("MouseMove");
+        }
     }
 }
