@@ -8,7 +8,7 @@
         Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="LightGray" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseMove="Window_MouseMove">
     <DockPanel Margin="20">
         <TextBlock x:Name="ScorePlayer1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"></TextBlock>
-        <Canvas Width="500" Height="500" Margin="20" Background="White"></Canvas>
+        <Canvas x:Name ="canvas" Width="500" Height="500" Margin="20" Background="White"></Canvas>
         <TextBlock x:Name="ScorePlayer2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"></TextBlock>
     </DockPanel>
 </Window>
