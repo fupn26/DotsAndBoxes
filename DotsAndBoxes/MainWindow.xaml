@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DotsAndBoxes"
         mc:Ignorable="d"
-        Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="LightGray" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" MouseLeftButtonDown="Window_MouseLeftButtonDown" MouseMove="Window_MouseMove">
+        Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="LightGray" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <StackPanel Margin="20" Orientation="Horizontal">
         <TextBlock x:Name="ScorePlayer1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="Blue"></TextBlock>
         <Canvas x:Name ="canvas" Width="500" Height="500" Margin="20" Background="White"></Canvas>
