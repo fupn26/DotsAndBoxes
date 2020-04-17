@@ -5,10 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DotsAndBoxes"
         mc:Ignorable="d"
-        Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="LightGray" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
-    <StackPanel Margin="20" Orientation="Horizontal">
-        <TextBlock x:Name="ScorePlayer1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="Blue"></TextBlock>
-        <Canvas x:Name ="canvas" Width="500" Height="500" Margin="20" Background="White"></Canvas>
-        <TextBlock x:Name="ScorePlayer2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="Red"></TextBlock>
+        Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="WhiteSmoke" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <StackPanel>
+        <StackPanel Margin="10 20 10 0" Orientation="Horizontal">
+            <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
+                <TextBlock x:Name="ScorePlayer1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkBlue" Height="100" ></TextBlock>
+            </materialDesign:Card>
+            <materialDesign:Card Margin="20" UniformCornerRadius="6">
+                <Canvas x:Name ="canvas" Width="500" Height="500" Background="White" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"></Canvas>
+            </materialDesign:Card>
+            <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
+                <TextBlock x:Name="ScorePlayer2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkRed" Height="100" ></TextBlock>
+            </materialDesign:Card>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 20">
+            <Button Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Margin="10">
+                <materialDesign:PackIcon Kind="Replay" Height="50" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Button>
+            <Button Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Margin="10">
+                <materialDesign:PackIcon Kind="Pause" Height="50" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Button>
+        </StackPanel>
     </StackPanel>
 </Window>

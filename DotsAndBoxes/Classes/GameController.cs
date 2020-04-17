@@ -119,11 +119,11 @@ namespace DotsAndBoxes.Classes
                 Line line = (Line)sender;
                 if (TurnId == 0)
                 {
-                    line.Stroke = Brushes.Blue;
+                    line.Stroke = Brushes.DarkBlue;
                 }
                 else
                 {
-                    line.Stroke = Brushes.Red;
+                    line.Stroke = Brushes.DarkRed;
                 }
                 CheckState(line);
 

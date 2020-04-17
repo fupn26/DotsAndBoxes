@@ -35,6 +35,7 @@ namespace DotsAndBoxes
         {
             ScorePlayer1.Text = gameController.Scores[0].ToString();
             ScorePlayer2.Text = gameController.Scores[1].ToString();
+            //ScorePlayer2.Content = gameController.Scores[1].ToString();
         }
 
         private void InitGame()
@@ -42,7 +43,6 @@ namespace DotsAndBoxes
             OnInitScore();
             DrawLines();
             DrawEllipses();
-//            UpdateScore();
         }
 
 
@@ -75,11 +75,11 @@ namespace DotsAndBoxes
             rect.Height = gameController.GameHeight * 0.9;
             if (gameController.TurnId == 0)
             {
-                rect.Fill = Brushes.Blue;
+                rect.Fill = Brushes.DarkBlue;
             }
             else
             {
-                rect.Fill = Brushes.Red;
+                rect.Fill = Brushes.DarkRed;
             }
             rect.RadiusX = 8;
             rect.RadiusY = 8;
@@ -97,52 +97,5 @@ namespace DotsAndBoxes
         }
 
 
-        //private void UpdateScore()
-        //{
-        //    ScorePlayer1.Text = gameController.Scores[0].ToString();
-        //    ScorePlayer2.Text = gameController.Scores[1].ToString();
-        //}
-
-        //private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        //{
-        //    foreach (Line line in gameController.LineList)
-        //    {
-        //        if (line.IsMouseDirectlyOver && line.Stroke == Brushes.Black)
-        //        {
-        //            line.StrokeThickness = 4;
-        //            if (gameController.TurnId == 1)
-        //            {
-        //                line.Stroke = Brushes.Red;
-        //            }
-        //            else
-        //            {
-        //                line.Stroke = Brushes.Blue;
-        //            }
-
-        //            gameController.Scores[gameController.TurnId] += gameController.CheckState(line);
-        //            UpdateScore();
-
-        //            //gameController.TurnId = 1 - gameController.TurnId;
-        //            break;
-        //        }
-        //    }
-        //}
-
-
-        //    private void Window_MouseMove(object sender, MouseEventArgs e)
-        //    {
-        //        foreach (Line line in gameController.LineList)
-        //        {
-        //            if (line.IsMouseDirectlyOver && line.Stroke == Brushes.White)
-        //            {
-        //                line.Stroke = Brushes.Black;
-        //            }
-        //            else
-        //            {
-        //                if (line.Stroke == Brushes.Black)
-        //                    line.Stroke = Brushes.White;
-        //            }
-        //        }
-        //    }
     }
 }
