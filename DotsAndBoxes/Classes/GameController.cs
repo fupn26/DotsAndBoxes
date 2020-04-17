@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
+using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -14,12 +17,28 @@ namespace DotsAndBoxes.Classes
         public int GameHeight { get; }
         public int EllipseSize { get; }
 
-        public int TurnId { get; private set; }
+        public int TurnId
+        {
+            get
+            {
+                return _gameState.TurnID;
+            }
+            private set
+            {
+                _gameState.TurnID = value;
+            }
+        }
 
-        public int[] Scores { get; private set; }
-
+        public ReadOnlyCollection<int> Scores { 
+            get
+            {
+                return new ReadOnlyCollection<int>(_gameState.Scores);
+            }
+        }
         public int NumberOfRows { get; }
         public int NumberOfColums { get; }
+
+        public GameState _gameState;
 
         public event EventHandler ScoreChanged;
         public event EventHandler<RectangleEventArgs> RectangleEnclosed;
@@ -27,20 +46,28 @@ namespace DotsAndBoxes.Classes
 
 
 
-        public List<Point> PointList { get; private set; }
-        public List<Line> LineList { get; private set; }
+        private List<Point> _pointList;
+        public ReadOnlyCollection<Point> PointList { 
+            get
+            {
+                return new ReadOnlyCollection<Point>(_pointList);
+            } 
+        }
+        public ReadOnlyCollection<Line> LineList { get
+            {
+                return new ReadOnlyCollection<Line>(_gameState.LineList);
+            } 
+        }
 
         public GameController(double CanvasHeight, double CanvasWidth)
         {
-            PointList = new List<Point>();
-            LineList = new List<Line>();
+            _gameState = new GameState();
+            _pointList = new List<Point>();
             GameWidth = 100;
             GameHeight = 100;
             EllipseSize = 10;
             NumberOfRows = (int)CanvasHeight / GameHeight;
             NumberOfColums = (int)CanvasWidth / GameWidth;
-            Scores = new int[2];
-            TurnId = 0;
             CreateEllipsePositionList();
             CreateLineList(Brushes.White);
         }
@@ -53,7 +80,7 @@ namespace DotsAndBoxes.Classes
                 {
                     Point point = new Point(j * GameWidth, i * GameHeight);
 
-                    PointList.Add(point);
+                    _pointList.Add(point);
                 }
             }
         }
@@ -79,7 +106,7 @@ namespace DotsAndBoxes.Classes
                     line.MouseEnter += Line_MouseEnter;
                     line.MouseLeave += Line_MouseLeave;
                     line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                    LineList.Add(line);
+                    _gameState.LineList.Add(line);
                 }
             }
 
@@ -102,7 +129,7 @@ namespace DotsAndBoxes.Classes
                     line.MouseEnter += Line_MouseEnter;
                     line.MouseLeave += Line_MouseLeave;
                     line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                    LineList.Add(line);
+                    _gameState.LineList.Add(line);
                 }
             }
         }
@@ -254,14 +281,34 @@ namespace DotsAndBoxes.Classes
                     }
                 }
             }
-            Scores[TurnId] += counter;
+            _gameState.Scores[TurnId] += counter;
             if (counter == 0)
             {
                 TurnId = 1 - TurnId;
                 return;
             }
             OnScoreChanged();
+            isGameEnded();
 
+        }
+
+        private void isGameEnded()
+        {
+            foreach (Line line in _gameState.LineList)
+            {
+                if (line.Stroke == Brushes.White || line.Stroke == Brushes.Black)
+                {
+                    return;
+                }
+            }
+            OnGameEnded();
+        }
+
+        private void OnGameEnded()
+        {
+            //string jsonString;
+            //jsonString = JsonSerializer.Serialize(_gameState);
+            //File.WriteAllText("teszt.json", jsonString);
         }
 
         private Point minPoint(Point p1, Point p2, Point p3, Point p4)
