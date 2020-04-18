@@ -40,11 +40,13 @@ namespace DotsAndBoxes.Classes
         public int NumberOfRows { get; }
         public int NumberOfColums { get; }
 
-        public GameState _gameState;
-
         public event EventHandler ScoreChanged;
         public event EventHandler<RectangleEventArgs> RectangleEnclosed;
+        public event EventHandler RestartDone;
 
+        private GameState _gameState;
+
+        private bool _diamondView;
 
         private List<Point> _pointList;
 
@@ -61,18 +63,35 @@ namespace DotsAndBoxes.Classes
             } 
         }
 
-        public GameController(double CanvasHeight, double CanvasWidth)
+        public GameController(double canvasHeight, double canvasWidth, int gameWidth, int gameHeight, bool diamondView)
+        {
+            _diamondView = diamondView;
+            GameWidth = gameHeight;
+            GameHeight = gameWidth;
+            EllipseSize = 10;
+            NumberOfRows = (int)canvasHeight / GameHeight;
+            NumberOfColums = (int)canvasWidth / GameWidth;
+            Init();
+        }
+
+        private void Init()
         {
             _gameState = new GameState();
             _pointList = new List<Point>();
             _prevGameStates = new List<GameStateSerializable>();
-            GameWidth = 100;
-            GameHeight = 100;
-            EllipseSize = 10;
-            NumberOfRows = (int)CanvasHeight / GameHeight;
-            NumberOfColums = (int)CanvasWidth / GameWidth;
             CreateEllipsePositionList();
-            //CreateLineList(Brushes.White);
+        }
+
+        private void Restart()
+        {
+            _gameState = new GameState();
+            CreateLineList(Brushes.White);
+            OnRestartDone();
+        }
+
+        private void OnRestartDone()
+        {
+            RestartDone?.Invoke(this, EventArgs.Empty);
         }
 
         private bool ReadPreviousState()
@@ -105,71 +124,214 @@ namespace DotsAndBoxes.Classes
             }
         }
 
+        private int MyModulo(int a, int b)
+        {
+            if (a < b)
+            {
+                return b % a;
+            }
+            else
+            {
+                return a % b;
+            }
+        }
         public void CreateEllipsePositionList()
         {
-            for (int i = 0; i <= NumberOfRows; ++i)
+            if (_diamondView)
             {
-                for (int j = 0; j <= NumberOfColums; ++j)
+                int offset = (NumberOfColums - 1) / 2; 
+                for (int i = 0; i <= NumberOfRows/2; ++i)
                 {
-                    Point point = new Point(j * GameWidth, i * GameHeight);
+                    for (int j = offset-i; j <= NumberOfColums - (offset - i); ++j)
+                    {
+                        Point point = new Point(j * GameWidth, i * GameHeight);
 
-                    _pointList.Add(point);
+                        _pointList.Add(point);
+                    }
                 }
+                for (int i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
+                {
+                    for (int j = i - offset - 1; j <= NumberOfColums - (i - offset - 1); ++j)
+                    {
+                        Point point = new Point(j * GameWidth, i * GameHeight);
+
+                        _pointList.Add(point);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i <= NumberOfRows; ++i)
+                {
+                    for (int j = 0; j <= NumberOfColums; ++j)
+                    {
+                        Point point = new Point(j * GameWidth, i * GameHeight);
+
+                        _pointList.Add(point);
+                    }
+                }
+
             }
         }
 
         public void CreateLineList(Brush brush)
         {
-            for (int i = 0; i <= NumberOfRows; ++i)
+            if (!_diamondView)
             {
-                for (int j = 0; j < NumberOfColums; ++j)
+                for (int i = 0; i <= NumberOfRows; ++i)
                 {
-                    int x1 = j * GameWidth;
-                    int y1 = i * GameHeight;
-                    int x2 = x1 + GameWidth;
-                    int y2 = y1;
-                    Line line = new Line();
-                    line.X1 = x1;
-                    line.Y1 = y1;
-                    line.X2 = x2;
-                    line.Y2 = y2;
-                    line.Stroke = brush;
-                    line.StrokeThickness = 8;
-                    line.Cursor = Cursors.Hand;
-                    line.MouseEnter += Line_MouseEnter;
-                    line.MouseLeave += Line_MouseLeave;
-                    line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                    _gameState.LineList.Add(line);
+                    for (int j = 0; j < NumberOfColums; ++j)
+                    {
+                        int x1 = j * GameWidth;
+                        int y1 = i * GameHeight;
+                        int x2 = x1 + GameWidth;
+                        int y2 = y1;
+                        Line line = new Line();
+                        line.X1 = x1;
+                        line.Y1 = y1;
+                        line.X2 = x2;
+                        line.Y2 = y2;
+                        line.Stroke = brush;
+                        line.StrokeThickness = 8;
+                        line.Cursor = Cursors.Hand;
+                        line.MouseEnter += Line_MouseEnter;
+                        line.MouseLeave += Line_MouseLeave;
+                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+                        _gameState.LineList.Add(line);
+                    }
+                }
+
+                for (int i = 0; i < NumberOfRows; ++i)
+                {
+                    for (int j = 0; j <= NumberOfColums; ++j)
+                    {
+                        int x1 = j * GameWidth;
+                        int y1 = i * GameHeight;
+                        int x2 = x1;
+                        int y2 = y1 + GameHeight;
+                        Line line = new Line();
+                        line.X1 = x1;
+                        line.Y1 = y1;
+                        line.X2 = x2;
+                        line.Y2 = y2;
+                        line.Stroke = brush;
+                        line.StrokeThickness = 8;
+                        line.Cursor = Cursors.Hand;
+                        line.MouseEnter += Line_MouseEnter;
+                        line.MouseLeave += Line_MouseLeave;
+                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+                        _gameState.LineList.Add(line);
+                    }
                 }
             }
-
-            for (int i = 0; i < NumberOfRows; ++i)
+            else
             {
-                for (int j = 0; j <= NumberOfColums; ++j)
+                int offset = (NumberOfColums - 1) / 2;
+                for (int i = 0; i <= NumberOfRows / 2; ++i)
                 {
-                    int x1 = j * GameWidth;
-                    int y1 = i * GameHeight;
-                    int x2 = x1;
-                    int y2 = y1 + GameHeight;
-                    Line line = new Line();
-                    line.X1 = x1;
-                    line.Y1 = y1;
-                    line.X2 = x2;
-                    line.Y2 = y2;
-                    line.Stroke = brush;
-                    line.StrokeThickness = 8;
-                    line.Cursor = Cursors.Hand;
-                    line.MouseEnter += Line_MouseEnter;
-                    line.MouseLeave += Line_MouseLeave;
-                    line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                    _gameState.LineList.Add(line);
+                    for (int j = offset-i; j < NumberOfColums-(offset-i); ++j)
+                    {
+                        int x1 = j * GameWidth;
+                        int y1 = i * GameHeight;
+                        int x2 = x1 + GameWidth;
+                        int y2 = y1;
+                        Line line = new Line();
+                        line.X1 = x1;
+                        line.Y1 = y1;
+                        line.X2 = x2;
+                        line.Y2 = y2;
+                        line.Stroke = brush;
+                        line.StrokeThickness = 8;
+                        line.Cursor = Cursors.Hand;
+                        line.MouseEnter += Line_MouseEnter;
+                        line.MouseLeave += Line_MouseLeave;
+                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+                        _gameState.LineList.Add(line);
+                    }
                 }
+
+                for (int i = 0; i < NumberOfRows/2; ++i)
+                {
+                    for (int j = offset-i; j <= NumberOfColums - (offset-i); ++j)
+                    {
+                        int x1 = j * GameWidth;
+                        int y1 = i * GameHeight;
+                        int x2 = x1;
+                        int y2 = y1 + GameHeight;
+                        Line line = new Line();
+                        line.X1 = x1;
+                        line.Y1 = y1;
+                        line.X2 = x2;
+                        line.Y2 = y2;
+                        line.Stroke = brush;
+                        line.StrokeThickness = 8;
+                        line.Cursor = Cursors.Hand;
+                        line.MouseEnter += Line_MouseEnter;
+                        line.MouseLeave += Line_MouseLeave;
+                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+                        _gameState.LineList.Add(line);
+                    }
+                }
+
+                for (int i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
+                {
+                    for (int j = i - offset - 1; j < NumberOfColums - (i - offset-1); ++j)
+                    {
+                        int x1 = j * GameWidth;
+                        int y1 = i * GameHeight;
+                        int x2 = x1 + GameWidth;
+                        int y2 = y1;
+                        Line line = new Line();
+                        line.X1 = x1;
+                        line.Y1 = y1;
+                        line.X2 = x2;
+                        line.Y2 = y2;
+                        line.Stroke = brush;
+                        line.StrokeThickness = 8;
+                        line.Cursor = Cursors.Hand;
+                        line.MouseEnter += Line_MouseEnter;
+                        line.MouseLeave += Line_MouseLeave;
+                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+                        _gameState.LineList.Add(line);
+
+
+                    }
+                }
+                for (int i = NumberOfRows / 2; i <= NumberOfRows; ++i)
+                {
+                    for (int j = i - offset; j < NumberOfColums - (i - offset - 1); ++j)
+                    {
+                        int x1 = j * GameWidth;
+                        int y1 = i * GameHeight;
+                        int x2 = x1;
+                        int y2 = y1 + GameHeight;
+                        Line line = new Line();
+                        line.X1 = x1;
+                        line.Y1 = y1;
+                        line.X2 = x2;
+                        line.Y2 = y2;
+                        line.Stroke = brush;
+                        line.StrokeThickness = 8;
+                        line.Cursor = Cursors.Hand;
+                        line.MouseEnter += Line_MouseEnter;
+                        line.MouseLeave += Line_MouseLeave;
+                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+                        _gameState.LineList.Add(line);
+
+                    }
+                }
+
             }
         }
 
         public void Window_InitScore(object sender, EventArgs e)
         {
             OnScoreChanged();
+        }
+
+        public void Windows_RestartGame(object sender, EventArgs e)
+        {
+            Restart();
         }
 
         public void Window_RestoreState(object sender, EventArgs e)
@@ -243,8 +405,8 @@ namespace DotsAndBoxes.Classes
         {
             RectangleStructure rectangle = new RectangleStructure();
             rectangle.RefPoint = point;
-            rectangle.Width = GameWidth * 0.9;
-            rectangle.Height = GameHeight * 0.9;
+            rectangle.Width = GameWidth * 0.85;
+            rectangle.Height = GameHeight * 0.85;
             rectangle.Fill = Brushes.DarkBlue.ToString();
             rectangle.RadiusX = 8;
             rectangle.RadiusY = 8;
