@@ -1,8 +1,4 @@
-﻿using DotsAndBoxes.Enums;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
+﻿using System.Drawing;
 
 namespace DotsAndBoxes.Structures
 {

@@ -1,10 +1,8 @@
 ﻿using DotsAndBoxes.Classes;
 using DotsAndBoxes.Structures;
 using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using Point = System.Drawing.Point;

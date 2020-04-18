@@ -1,10 +1,6 @@
-﻿using DotsAndBoxes.Converters;
-using DotsAndBoxes.Structures;
-using System;
+﻿using DotsAndBoxes.Structures;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
-using System.Text.Json.Serialization;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
