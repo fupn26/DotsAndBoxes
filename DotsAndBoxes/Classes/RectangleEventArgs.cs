@@ -1,17 +1,18 @@
-﻿using System;
+﻿using DotsAndBoxes.Structures;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using System.Windows.Media;
 
 namespace DotsAndBoxes.Classes
 {
     class RectangleEventArgs : EventArgs
     {
-        public Point RefPoint { get; }
-
-        public RectangleEventArgs(Point refPoint)
+        public RectangleStructure  rectangleStructure { get; }
+        public RectangleEventArgs(RectangleStructure rectangle)
         {
-            RefPoint = refPoint;
+            rectangleStructure = rectangle;
         }
     }
 }

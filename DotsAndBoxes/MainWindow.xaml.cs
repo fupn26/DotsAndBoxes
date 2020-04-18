@@ -1,4 +1,5 @@
 ﻿using DotsAndBoxes.Classes;
+using DotsAndBoxes.Structures;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -16,6 +17,8 @@ namespace DotsAndBoxes
 
         public event EventHandler InitScore;
 
+        public event EventHandler RestoreState;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -23,28 +26,33 @@ namespace DotsAndBoxes
             gameController.ScoreChanged += GameController_ScoreChanged;
             gameController.RectangleEnclosed += GameController_RectangleEnclosed;
             InitScore += gameController.Window_InitScore;
+            RestoreState += gameController.Window_RestoreState;
             InitGame();
         }
 
         private void GameController_RectangleEnclosed(object sender, RectangleEventArgs e)
         {
-            DrawRectangle(e.RefPoint);
+            DrawRectangle(e.rectangleStructure);
         }
 
         private void GameController_ScoreChanged(object sender, EventArgs e)
         {
             ScorePlayer1.Text = gameController.Scores[0].ToString();
             ScorePlayer2.Text = gameController.Scores[1].ToString();
-            //ScorePlayer2.Content = gameController.Scores[1].ToString();
         }
 
         private void InitGame()
         {
+            OnRestoreState();
             OnInitScore();
             DrawLines();
             DrawEllipses();
         }
 
+        private void OnRestoreState()
+        {
+            RestoreState?.Invoke(this, EventArgs.Empty);
+        }
 
         private void OnInitScore()
         {
@@ -68,23 +76,16 @@ namespace DotsAndBoxes
 
         }
 
-        private void DrawRectangle(Point point)
+        private void DrawRectangle(RectangleStructure rectangle)
         {
             Rectangle rect = new Rectangle();
-            rect.Width = gameController.GameWidth * 0.9;
-            rect.Height = gameController.GameHeight * 0.9;
-            if (gameController.TurnId == 0)
-            {
-                rect.Fill = Brushes.DarkBlue;
-            }
-            else
-            {
-                rect.Fill = Brushes.DarkRed;
-            }
-            rect.RadiusX = 8;
-            rect.RadiusY = 8;
-            Canvas.SetTop(rect, point.Y + (gameController.GameHeight - rect.Height) / 2);
-            Canvas.SetLeft(rect, point.X + (gameController.GameWidth - rect.Width) / 2);
+            rect.Width = rectangle.Width;
+            rect.Height = rectangle.Height;
+            rect.Fill = (Brush)new BrushConverter().ConvertFromString(rectangle.Fill);
+            rect.RadiusX = rectangle.RadiusX;
+            rect.RadiusY = rectangle.RadiusY;
+            Canvas.SetTop(rect, rectangle.RefPoint.Y + (gameController.GameHeight - rect.Height) / 2);
+            Canvas.SetLeft(rect, rectangle.RefPoint.X + (gameController.GameWidth - rect.Width) / 2);
             canvas.Children.Add(rect);
         }
 

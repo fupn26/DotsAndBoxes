@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotsAndBoxes.Structures;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
@@ -8,11 +9,13 @@ using System.Text.Json;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Color = System.Windows.Media.Color;
 
 namespace DotsAndBoxes.Classes
 {
     class GameController
     {
+        private const string fileName = "saved_game.json";
         public int GameWidth { get; }
         public int GameHeight { get; }
         public int EllipseSize { get; }
@@ -35,6 +38,7 @@ namespace DotsAndBoxes.Classes
                 return new ReadOnlyCollection<int>(_gameState.Scores);
             }
         }
+
         public int NumberOfRows { get; }
         public int NumberOfColums { get; }
 
@@ -44,9 +48,9 @@ namespace DotsAndBoxes.Classes
         public event EventHandler<RectangleEventArgs> RectangleEnclosed;
 
 
-
-
         private List<Point> _pointList;
+
+        private List<GameStateSerializable> _prevGameStates;
         public ReadOnlyCollection<Point> PointList { 
             get
             {
@@ -63,13 +67,44 @@ namespace DotsAndBoxes.Classes
         {
             _gameState = new GameState();
             _pointList = new List<Point>();
+            _prevGameStates = new List<GameStateSerializable>();
             GameWidth = 100;
             GameHeight = 100;
             EllipseSize = 10;
             NumberOfRows = (int)CanvasHeight / GameHeight;
             NumberOfColums = (int)CanvasWidth / GameWidth;
             CreateEllipsePositionList();
-            CreateLineList(Brushes.White);
+            //CreateLineList(Brushes.White);
+        }
+
+        private bool ReadPreviousState()
+        {
+            if (File.Exists(fileName))
+            {
+                string jsonString = File.ReadAllText(fileName);
+                _prevGameStates = JsonSerializer.Deserialize<List<GameStateSerializable>>(jsonString);
+                GameStateSerializable gameState = _prevGameStates[_prevGameStates.Count - 1];
+                if (gameState.isEnded)
+                {
+                    CreateLineList(Brushes.White);
+                    return false;
+                }
+                _gameState.FromSerializable(gameState);
+                return true;
+            }
+            else
+            {
+                CreateLineList(Brushes.White);
+                return false;
+            }
+        }
+
+        private void RestorePlacedRectangles()
+        {
+            foreach (RectangleStructure rectangle in _gameState.PlacedRectangles)
+            {
+                OnRectangleEnclosed(rectangle);
+            }
         }
 
         public void CreateEllipsePositionList()
@@ -139,11 +174,35 @@ namespace DotsAndBoxes.Classes
             OnScoreChanged();
         }
 
+        public void Window_RestoreState(object sender, EventArgs e)
+        {
+            if (ReadPreviousState())
+            {
+                RestorePreferencesOfLines();
+                RestorePlacedRectangles();
+            }
+        }
+
+        private void RestorePreferencesOfLines()
+        {
+            foreach (Line line in _gameState.LineList)
+            {
+                line.Cursor = Cursors.Hand;
+                line.MouseEnter += Line_MouseEnter;
+                line.MouseLeave += Line_MouseLeave;
+                line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+            }
+        }
+
         private void Line_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Line)
             {
                 Line line = (Line)sender;
+                if (line.Stroke != Brushes.Black)
+                {
+                    return;
+                }
                 if (TurnId == 0)
                 {
                     line.Stroke = Brushes.DarkBlue;
@@ -182,15 +241,36 @@ namespace DotsAndBoxes.Classes
             }
         }
 
+        private void CreateNewRectangleStructure(Point point)
+        {
+            RectangleStructure rectangle = new RectangleStructure();
+            rectangle.RefPoint = point;
+            rectangle.Width = GameWidth * 0.9;
+            rectangle.Height = GameHeight * 0.9;
+            rectangle.Fill = Brushes.DarkBlue.ToString();
+            rectangle.RadiusX = 8;
+            rectangle.RadiusY = 8;
+            if (_gameState.TurnID == 0)
+            {
+                rectangle.Fill = Brushes.DarkBlue.ToString();
+
+            }
+            else
+            {
+                rectangle.Fill = Brushes.DarkRed.ToString();
+            }
+            _gameState.PlacedRectangles.Add(rectangle);
+            OnRectangleEnclosed(rectangle);
+        }
 
         private void OnScoreChanged()
         {
             ScoreChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void OnRectangleEnclosed(Point point)
+        private void OnRectangleEnclosed(RectangleStructure rectangle)
         {
-            RectangleEnclosed?.Invoke(this, new RectangleEventArgs(point));
+            RectangleEnclosed?.Invoke(this, new RectangleEventArgs(rectangle));
         }
 
         private bool areEqualLines(Line line1, Line line2)
@@ -306,9 +386,13 @@ namespace DotsAndBoxes.Classes
 
         private void OnGameEnded()
         {
-            //string jsonString;
-            //jsonString = JsonSerializer.Serialize(_gameState);
-            //File.WriteAllText("teszt.json", jsonString);
+            GameStateSerializable stateSerializable = _gameState.ToSerializable();
+            stateSerializable.isEnded = true;
+            _prevGameStates.Add(stateSerializable);
+            string jsonString;
+            string v = JsonSerializer.Serialize<List<GameStateSerializable>>(_prevGameStates);
+            jsonString = v;
+            File.WriteAllText(fileName, jsonString);
         }
 
         private Point minPoint(Point p1, Point p2, Point p3, Point p4)
@@ -401,7 +485,7 @@ namespace DotsAndBoxes.Classes
             else
             {
                 Point point = minPoint(point1, point2, point3, point4);
-                OnRectangleEnclosed(point);
+                CreateNewRectangleStructure(point);
                 return 1;
             }
         }
