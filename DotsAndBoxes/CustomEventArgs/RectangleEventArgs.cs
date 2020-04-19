@@ -1,7 +1,7 @@
 ﻿using DotsAndBoxes.Structures;
 using System;
 
-namespace DotsAndBoxes.Classes
+namespace DotsAndBoxes.CustomEventArgs
 {
     class RectangleEventArgs : EventArgs
     {

@@ -1,4 +1,5 @@
-﻿using DotsAndBoxes.Structures;
+﻿using DotsAndBoxes.CustomEventArgs;
+using DotsAndBoxes.Structures;
 using System;
 using System.Collections.Generic;
 using System.Text;

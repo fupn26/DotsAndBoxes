@@ -1,4 +1,5 @@
 ﻿using DotsAndBoxes.Classes;
+using DotsAndBoxes.CustomEventArgs;
 using DotsAndBoxes.Structures;
 using System;
 using System.Windows.Controls;

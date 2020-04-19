@@ -1,4 +1,5 @@
 ﻿using DotsAndBoxes.Classes;
+using DotsAndBoxes.CustomEventArgs;
 using DotsAndBoxes.Structures;
 using System;
 using System.Windows.Controls;
@@ -9,12 +10,9 @@ using Point = System.Drawing.Point;
 
 namespace DotsAndBoxes.Views
 {
-    /// <summary>
-    /// Interaction logic for ClassicGameView.xaml
-    /// </summary>
     public partial class DiamondGameView : UserControl
     {
-        private GameController gameController;
+        private readonly GameController gameController;
 
         public event EventHandler InitScore;
 
@@ -22,11 +20,11 @@ namespace DotsAndBoxes.Views
 
         public event EventHandler RestartGame;
 
+        public event EventHandler SaveGame;
+
         private bool isCanvasEnabled;
 
-        private int _time;
-
-        private DispatcherTimer _timer;
+        private readonly DispatcherTimer _timer;
 
         public DiamondGameView()
         {
@@ -35,48 +33,60 @@ namespace DotsAndBoxes.Views
             gameController.ScoreChanged += GameController_ScoreChanged;
             gameController.RectangleEnclosed += GameController_RectangleEnclosed;
             gameController.RestartDone += GameController_RestartDone;
+            gameController.GameEnded += GameController_GameEnded;
             InitScore += gameController.Window_InitScore;
             RestoreState += gameController.Window_RestoreState;
             RestartGame += gameController.Windows_RestartGame;
+            SaveGame += gameController.Window_SaveGame;
             isCanvasEnabled = true;
             OnRestoreState();
             InitGame();
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
-            _timer.Tick += timer_Tick;
+            _timer.Tick += Timer_Tick;
             _timer.Start();
+        }
+
+        private void GameController_GameEnded(object sender, EventArgs e)
+        {
+            OnRestartButtonClicked();
         }
 
         private void GameController_RestartDone(object sender, EventArgs e)
         {
-            InitGame();
+            Restart();
         }
 
-        private void timer_Tick(object sender, EventArgs e)
+        private void UpdateTimerText()
         {
-            int sec = _time % 60;
-            int min = _time / 60;
+            int sec = gameController.TimeElapsed % 60;
+            int min = gameController.TimeElapsed / 60;
             if (sec < 10 && min == 0)
             {
-                Timer.Text = string.Format("00:0{0}", _time % 60);
+                Timer.Text = string.Format("00:0{0}", sec);
             }
-            else if (sec > 10 && min < 10)
+            else if (sec >= 10 && min < 10)
             {
-                Timer.Text = string.Format("0{0}:{1}", _time / 60, _time % 60);
+                Timer.Text = string.Format("0{0}:{1}", min, sec);
             }
-            else if (sec < 10 && min > 10)
+            else if (sec < 10 && min >= 10)
             {
-                Timer.Text = string.Format("{0}:0{1}", _time / 60, _time % 60);
+                Timer.Text = string.Format("{0}:0{1}", min, sec);
             }
             else if (sec < 10 && min < 10)
             {
-                Timer.Text = string.Format("0{0}:0{1}", _time / 60, _time % 60);
+                Timer.Text = string.Format("0{0}:0{1}", min, sec);
             }
             else
             {
-                Timer.Text = string.Format("{0}:{1}", _time / 60, _time % 60);
+                Timer.Text = string.Format("{0}:{1}", min, sec);
             }
-            _time++;
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            UpdateTimerText();
+            gameController.TimeElapsed += 1;
         }
 
         private void GameController_RectangleEnclosed(object sender, RectangleEventArgs e)
@@ -92,12 +102,17 @@ namespace DotsAndBoxes.Views
 
         private void InitGame()
         {
-            Timer.Text = "00:00";
-            _time = 0;
-            canvas.Children.Clear();
+            gameController.TimeElapsed = 0;
+            UpdateTimerText();
             OnInitScore();
             DrawLines();
             DrawEllipses();
+        }
+
+        private void Restart()
+        {
+            canvas.Children.Clear();
+            InitGame();
         }
 
         private void OnRestoreState()
@@ -148,12 +163,7 @@ namespace DotsAndBoxes.Views
             }
         }
 
-        private void RestartButton_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            RestartGame?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void PauseButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void PauseGame()
         {
             if (isCanvasEnabled)
             {
@@ -169,6 +179,61 @@ namespace DotsAndBoxes.Views
             }
 
             isCanvasEnabled = !isCanvasEnabled;
+        }
+
+        private void OnRestartButtonClicked()
+        {
+            RestartGame?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void RestartButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            OnRestartButtonClicked();
+        }
+
+        private void PauseButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            PauseGame();
+        }
+
+        private void PopupBox_Opened(object sender, System.Windows.RoutedEventArgs e)
+        {
+            PopupBoxPanel.Visibility = System.Windows.Visibility.Visible;
+            if (isCanvasEnabled)
+            {
+                PauseGame();
+            }
+        }
+
+        private void PopupBox_Closed(object sender, System.Windows.RoutedEventArgs e)
+        {
+            PopupBoxPanel.Visibility = System.Windows.Visibility.Collapsed;
+            if (!isCanvasEnabled)
+            {
+                PauseGame();
+            }
+        }
+
+        private void PopupBox_IsMouseDirectlyOverChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
+        {
+            return;
+
+        }
+
+        private void ExitButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+
+        private void SaveButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            OnSaveGameState();
+        }
+
+        private void OnSaveGameState()
+        {
+            SaveGameSnack.IsActive = true;
+            SaveGame?.Invoke(this, EventArgs.Empty);
         }
     }
 }

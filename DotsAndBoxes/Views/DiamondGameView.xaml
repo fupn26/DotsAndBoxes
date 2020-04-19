@@ -10,7 +10,7 @@
              Background="{DynamicResource MaterialDesignPaper}"
              VerticalAlignment="Center" HorizontalAlignment="Center">
     <StackPanel Height="Auto" Width="Auto">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Center">
             <materialDesign:Card Margin="0 10 0 0" UniformCornerRadius="6" Height="60" Width="200">
                 <TextBlock x:Name="Timer" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="50" Foreground="DarkBlue" Height="75" ></TextBlock>
             </materialDesign:Card>
@@ -26,23 +26,40 @@
                 <TextBlock x:Name="ScorePlayer2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkRed" Height="100" ></TextBlock>
             </materialDesign:Card>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 20">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="0 0 0 20">
             <Button x:Name="RestartButton" Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Margin="10" Click="RestartButton_Click">
-                <materialDesign:PackIcon Kind="Replay" Height="50" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <materialDesign:PackIcon Kind="Replay" Height="40" Width="40" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Button>
             <Button x:Name="PauseButton" Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Margin="10" Click="PauseButton_Click">
-                <materialDesign:PackIcon x:Name="PauseButtonSign" Kind="Pause" Height="50" Width="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <materialDesign:PackIcon x:Name="PauseButtonSign" Kind="Pause" Height="40" Width="40" HorizontalAlignment="Center" />
             </Button>
             <materialDesign:PopupBox
-        Style="{StaticResource MaterialDesignMultiFloatingActionDarkPopupBox}"
-        Margin="10">
-                <StackPanel>
-                    <Button
-            Content="Save and exit" />
-                    <Button
-            Content="Exit" />
+                Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
+                Margin="10" Opened="PopupBox_Opened" Closed="PopupBox_Closed" IsMouseDirectlyOverChanged="PopupBox_IsMouseDirectlyOverChanged">
+                <materialDesign:PopupBox.ToggleContent>
+                    <materialDesign:PackIcon Kind="MoreHoriz" Width="40" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
+                </materialDesign:PopupBox.ToggleContent>
+                <materialDesign:PopupBox.ToggleCheckedContent>
+                    <materialDesign:PackIcon Kind="Close" Width="40" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
+                </materialDesign:PopupBox.ToggleCheckedContent>
+                <StackPanel x:Name="PopupBoxPanel" Visibility="Collapsed">
+                    <Button Margin="0 0 0 5" Style="{StaticResource MaterialDesignFloatingActionLightButton}" ToolTip="Jump to Home Screen" ToolTipService.Placement="Right" ToolTipService.VerticalOffset="10">
+                        <materialDesign:PackIcon Kind="HomeOutline" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                    <Button x:Name="SaveButton" Margin="0 0 0 5" Style="{StaticResource MaterialDesignFloatingActionLightButton}" ToolTip="Save current state" ToolTipService.Placement="Right" ToolTipService.VerticalOffset="10" Click="SaveButton_Click">
+                        <materialDesign:PackIcon Kind="ContentSaveOutline" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                    <Button x:Name="ExitButton" Margin="0 0 0 0" Style="{StaticResource MaterialDesignFloatingActionLightButton}" ToolTip="Exit application" ToolTipService.Placement="Right" ToolTipService.VerticalOffset="10" Click="ExitButton_Click">
+                        <materialDesign:PackIcon Kind="ExitToApp" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
                 </StackPanel>
             </materialDesign:PopupBox>
         </StackPanel>
+        <materialDesign:Snackbar
+            HorizontalAlignment="Center"
+            Message="Game Saved"
+            IsActive="False"
+            MessageQueue="{materialDesign:MessageQueue}"
+            x:Name="SaveGameSnack"/>
     </StackPanel>
 </UserControl>
