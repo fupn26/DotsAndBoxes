@@ -28,16 +28,16 @@ namespace DotsAndBoxes
             //DataContext = new WelcomeViewModel();
         }
 
-        private void DiamondGameView_Loaded(object sender, RoutedEventArgs e)
-        {
-            var view = (DiamondGameView)sender;
-            GameViewNeedToLoadComponent += view.MainWindow_NeedToLoadComponents;
-            OnGameViewNeedToLoadComponents();
-        }
-
         private void OnGameViewNeedToLoadComponents()
         {
             GameViewNeedToLoadComponent?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void GameView_Loaded(object sender, RoutedEventArgs e)
+        {
+            var view = (GameView)sender;
+            GameViewNeedToLoadComponent += view.MainWindow_NeedToLoadComponents;
+            OnGameViewNeedToLoadComponents();
         }
     }
 }

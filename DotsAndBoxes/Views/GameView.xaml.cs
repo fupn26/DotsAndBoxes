@@ -2,21 +2,24 @@
 using DotsAndBoxes.CustomEventArgs;
 using DotsAndBoxes.Structures;
 using System;
-using System.ComponentModel;
-using System.Threading;
+using System.Collections.Generic;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Point = System.Drawing.Point;
 
 namespace DotsAndBoxes.Views
 {
-    public partial class DiamondGameView : UserControl, INotifyPropertyChanged
+    public partial class GameView : UserControl
     {
-        private GameController gameController;
-
         public event EventHandler InitScore;
 
         public event EventHandler RestoreState;
@@ -24,27 +27,15 @@ namespace DotsAndBoxes.Views
         public event EventHandler RestartGame;
 
         public event EventHandler SaveGame;
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private bool isCanvasEnabled;
-
-        private DispatcherTimer _timer;
 
         public double CanvasWidth
         {
             get { return (double)GetValue(CanvasWidthProperty); }
-            set { SetValue(CanvasWidthProperty, value); OnPropertyChanged(); }
+            set { SetValue(CanvasWidthProperty, value); }
         }
 
-        private void OnPropertyChanged()
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
-        }
-
-        // Using a DependencyProperty as the backing store for CanvasWidth.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CanvasWidthProperty =
-            DependencyProperty.Register("CanvasWidth", typeof(double), typeof(DiamondGameView), new PropertyMetadata(0.0));
-
+            DependencyProperty.Register("CanvasWidth", typeof(double), typeof(GameView), new PropertyMetadata(0.0));
 
 
         public double CanvasHeight
@@ -53,22 +44,40 @@ namespace DotsAndBoxes.Views
             set { SetValue(CanvasHeightProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for CanvasHeight.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CanvasHeightProperty =
-            DependencyProperty.Register("CanvasHeight", typeof(double), typeof(DiamondGameView), new PropertyMetadata(0.0));
+            DependencyProperty.Register("CanvasHeight", typeof(double), typeof(GameView), new PropertyMetadata(0.0));
+
+
+
+
+        public bool IsClassicView
+        {
+            get { return (bool)GetValue(IsClassicViewProperty); }
+            set { SetValue(IsClassicViewProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsClassicViewProperty =
+            DependencyProperty.Register("IsClassicView", typeof(bool), typeof(GameView), new PropertyMetadata(true));
 
 
 
 
 
-        public DiamondGameView()
+        private GameController gameController;
+
+        private bool isCanvasEnabled;
+
+        private DispatcherTimer _timer;
+
+
+        public GameView()
         {
             InitializeComponent();
         }
 
         public void LoadComponents()
         {
-            gameController = new GameController(CanvasHeight, CanvasWidth, 70, 70, false);
+            gameController = new GameController(CanvasHeight, CanvasWidth, 70, 70, IsClassicView);
             gameController.ScoreChanged += GameController_ScoreChanged;
             gameController.RectangleEnclosed += GameController_RectangleEnclosed;
             gameController.RestartDone += GameController_RestartDone;

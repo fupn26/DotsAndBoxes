@@ -10,15 +10,16 @@
         Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="WhiteSmoke" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <DataTemplate x:Name="classicGameView" DataType="{x:Type viewmodels:ClassicGameViewModel}">
-            <views:ClassicGameView DataContext="{Binding}"/>
+            <views:GameView CanvasHeight="500" CanvasWidth="500" DataContext="{Binding}" Loaded="GameView_Loaded"/>
         </DataTemplate>
         <DataTemplate x:Name="WelcomeView" DataType="{x:Type viewmodels:WelcomeViewModel}">
             <views:WelcomeView DataContext="{Binding}"/>
         </DataTemplate>
         <DataTemplate x:Name="DiamondGameView" DataType="{x:Type viewmodels:DiamondGameViewModel}">
-            <views:DiamondGameView CanvasHeight="490" CanvasWidth="490" DataContext="{Binding}" Loaded="DiamondGameView_Loaded"/>
+            <views:GameView CanvasHeight="490" CanvasWidth="490" IsClassicView="False" DataContext="{Binding}" Loaded="GameView_Loaded"/>
         </DataTemplate>
     </Window.Resources>
-    <ContentControl Content="{Binding}"/>
-
+    <Grid>
+        <ContentControl Content="{Binding}"/>
+    </Grid>
 </Window>
