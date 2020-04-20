@@ -2,6 +2,9 @@
 using DotsAndBoxes.CustomEventArgs;
 using DotsAndBoxes.Structures;
 using System;
+using System.ComponentModel;
+using System.Threading;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -10,9 +13,9 @@ using Point = System.Drawing.Point;
 
 namespace DotsAndBoxes.Views
 {
-    public partial class DiamondGameView : UserControl
+    public partial class DiamondGameView : UserControl, INotifyPropertyChanged
     {
-        private readonly GameController gameController;
+        private GameController gameController;
 
         public event EventHandler InitScore;
 
@@ -21,15 +24,51 @@ namespace DotsAndBoxes.Views
         public event EventHandler RestartGame;
 
         public event EventHandler SaveGame;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private bool isCanvasEnabled;
 
-        private readonly DispatcherTimer _timer;
+        private DispatcherTimer _timer;
+
+        public double CanvasWidth
+        {
+            get { return (double)GetValue(CanvasWidthProperty); }
+            set { SetValue(CanvasWidthProperty, value); OnPropertyChanged(); }
+        }
+
+        private void OnPropertyChanged()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
+        }
+
+        // Using a DependencyProperty as the backing store for CanvasWidth.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CanvasWidthProperty =
+            DependencyProperty.Register("CanvasWidth", typeof(double), typeof(DiamondGameView), new PropertyMetadata(0.0));
+
+
+
+        public double CanvasHeight
+        {
+            get { return (double)GetValue(CanvasHeightProperty); }
+            set { SetValue(CanvasHeightProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for CanvasHeight.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CanvasHeightProperty =
+            DependencyProperty.Register("CanvasHeight", typeof(double), typeof(DiamondGameView), new PropertyMetadata(0.0));
+
+
+
+
 
         public DiamondGameView()
         {
             InitializeComponent();
-            gameController = new GameController(canvas.Height, canvas.Width, 80, 80, true);
+        }
+
+        public void LoadComponents()
+        {
+            gameController = new GameController(CanvasHeight, CanvasWidth, 70, 70, false);
             gameController.ScoreChanged += GameController_ScoreChanged;
             gameController.RectangleEnclosed += GameController_RectangleEnclosed;
             gameController.RestartDone += GameController_RestartDone;
@@ -41,8 +80,10 @@ namespace DotsAndBoxes.Views
             isCanvasEnabled = true;
             OnRestoreState();
             InitGame();
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
             _timer.Tick += Timer_Tick;
             _timer.Start();
         }
@@ -129,10 +170,12 @@ namespace DotsAndBoxes.Views
         {
             foreach (Point point in gameController.PointList)
             {
-                Ellipse ellipse = new Ellipse();
-                ellipse.Width = gameController.EllipseSize;
-                ellipse.Height = gameController.EllipseSize;
-                ellipse.Fill = Brushes.Black;
+                Ellipse ellipse = new Ellipse
+                {
+                    Width = gameController.EllipseSize,
+                    Height = gameController.EllipseSize,
+                    Fill = Brushes.Black
+                };
 
                 Canvas.SetLeft(ellipse, point.X - gameController.EllipseSize / 2);
                 Canvas.SetTop(ellipse, point.Y - gameController.EllipseSize / 2);
@@ -144,12 +187,14 @@ namespace DotsAndBoxes.Views
 
         private void DrawRectangle(RectangleStructure rectangle)
         {
-            Rectangle rect = new Rectangle();
-            rect.Width = rectangle.Width;
-            rect.Height = rectangle.Height;
-            rect.Fill = (Brush)new BrushConverter().ConvertFromString(rectangle.Fill);
-            rect.RadiusX = rectangle.RadiusX;
-            rect.RadiusY = rectangle.RadiusY;
+            Rectangle rect = new Rectangle
+            {
+                Width = rectangle.Width,
+                Height = rectangle.Height,
+                Fill = (Brush)new BrushConverter().ConvertFromString(rectangle.Fill),
+                RadiusX = rectangle.RadiusX,
+                RadiusY = rectangle.RadiusY
+            };
             Canvas.SetTop(rect, rectangle.RefPoint.Y + (gameController.GameHeight - rect.Height) / 2);
             Canvas.SetLeft(rect, rectangle.RefPoint.X + (gameController.GameWidth - rect.Width) / 2);
             canvas.Children.Add(rect);
@@ -214,12 +259,6 @@ namespace DotsAndBoxes.Views
             }
         }
 
-        private void PopupBox_IsMouseDirectlyOverChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
-        {
-            return;
-
-        }
-
         private void ExitButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             System.Windows.Application.Current.Shutdown();
@@ -234,6 +273,11 @@ namespace DotsAndBoxes.Views
         {
             SaveGameSnack.IsActive = true;
             SaveGame?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void MainWindow_NeedToLoadComponents(object sender, EventArgs e)
+        {
+            LoadComponents();
         }
     }
 }

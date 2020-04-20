@@ -6,6 +6,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:DotsAndBoxes.Views"
              mc:Ignorable="d"
+             Name="DiamondView"
              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              Background="{DynamicResource MaterialDesignPaper}"
              VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -20,7 +21,7 @@
                 <TextBlock x:Name="ScorePlayer1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkBlue" Height="100" ></TextBlock>
             </materialDesign:Card>
             <materialDesign:Card Margin="20" UniformCornerRadius="6">
-                <Canvas x:Name ="canvas" Width="560" Height="560" Background="White" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"></Canvas>
+                <Canvas x:Name ="canvas" Background="White" Width="{Binding CanvasWidth, ElementName=DiamondView}" Height="{Binding CanvasHeight, ElementName=DiamondView}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"></Canvas>
             </materialDesign:Card>
             <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
                 <TextBlock x:Name="ScorePlayer2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkRed" Height="100" ></TextBlock>
@@ -35,7 +36,7 @@
             </Button>
             <materialDesign:PopupBox
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
-                Margin="10" Opened="PopupBox_Opened" Closed="PopupBox_Closed" IsMouseDirectlyOverChanged="PopupBox_IsMouseDirectlyOverChanged">
+                Margin="10" Opened="PopupBox_Opened" Closed="PopupBox_Closed">
                 <materialDesign:PopupBox.ToggleContent>
                     <materialDesign:PackIcon Kind="MoreHoriz" Width="40" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
                 </materialDesign:PopupBox.ToggleContent>

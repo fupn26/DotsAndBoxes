@@ -1,6 +1,7 @@
 ﻿using DotsAndBoxes.Classes;
 using DotsAndBoxes.Structures;
 using DotsAndBoxes.ViewModels;
+using DotsAndBoxes.Views;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,6 +18,7 @@ namespace DotsAndBoxes
         //public event EventHandler InitScore;
 
         //public event EventHandler RestoreState;
+        public event EventHandler GameViewNeedToLoadComponent;
 
         public MainWindow()
         {
@@ -26,5 +28,16 @@ namespace DotsAndBoxes
             //DataContext = new WelcomeViewModel();
         }
 
+        private void DiamondGameView_Loaded(object sender, RoutedEventArgs e)
+        {
+            var view = (DiamondGameView)sender;
+            GameViewNeedToLoadComponent += view.MainWindow_NeedToLoadComponents;
+            OnGameViewNeedToLoadComponents();
+        }
+
+        private void OnGameViewNeedToLoadComponents()
+        {
+            GameViewNeedToLoadComponent?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

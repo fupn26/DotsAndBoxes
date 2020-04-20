@@ -48,7 +48,7 @@ namespace DotsAndBoxes.Classes
         private GameState _gameState;
         private AI _ai;
 
-        private bool _diamondView;
+        private bool _isClassisView;
 
         private List<Point> _pointList;
 
@@ -70,9 +70,9 @@ namespace DotsAndBoxes.Classes
             Init(canvasHeight, canvasWidth, gameWidth, gameHeight, diamondView);
         }
 
-        public void Init(double canvasHeight, double canvasWidth, int gameWidth, int gameHeight, bool diamondView)
+        public void Init(double canvasHeight, double canvasWidth, int gameWidth, int gameHeight, bool isClassicView)
         {
-            _diamondView = diamondView;
+            _isClassisView = isClassicView;
             GameWidth = gameHeight;
             GameHeight = gameWidth;
             EllipseSize = 10;
@@ -148,203 +148,165 @@ namespace DotsAndBoxes.Classes
 
         public void CreateEllipsePositionList()
         {
-            if (_diamondView)
+            if (_isClassisView)
             {
-                int offset = (NumberOfColums - 1) / 2; 
-                for (int i = 0; i <= NumberOfRows/2; ++i)
-                {
-                    for (int j = offset-i; j <= NumberOfColums - (offset - i); ++j)
-                    {
-                        Point point = new Point(j * GameWidth, i * GameHeight);
-
-                        _pointList.Add(point);
-                    }
-                }
-                for (int i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
-                {
-                    for (int j = i - offset - 1; j <= NumberOfColums - (i - offset - 1); ++j)
-                    {
-                        Point point = new Point(j * GameWidth, i * GameHeight);
-
-                        _pointList.Add(point);
-                    }
-                }
+                CreateEllipsePositionListForClassicView();
             }
             else
             {
-                for (int i = 0; i <= NumberOfRows; ++i)
-                {
-                    for (int j = 0; j <= NumberOfColums; ++j)
-                    {
-                        Point point = new Point(j * GameWidth, i * GameHeight);
-
-                        _pointList.Add(point);
-                    }
-                }
-
+                CreateEllipsePositionListForDiamondView();
             }
+        }
+
+        private void CreateEllipsePositionListForDiamondView()
+        {
+            int offset = (NumberOfColums - 1) / 2;
+            for (int i = 0; i <= NumberOfRows / 2; ++i)
+            {
+                for (int j = offset - i; j <= NumberOfColums - (offset - i); ++j)
+                {
+                    AddPoint(j, i);
+                }
+            }
+            for (int i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
+            {
+                for (int j = i - offset - 1; j <= NumberOfColums - (i - offset - 1); ++j)
+                {
+                    AddPoint(j, i);
+                }
+            }
+        }
+
+        private void CreateEllipsePositionListForClassicView()
+        {
+            for (int i = 0; i <= NumberOfRows; ++i)
+            {
+                for (int j = 0; j <= NumberOfColums; ++j)
+                {
+                    AddPoint(j, i);
+                }
+            }
+
+        }
+
+        private void AddPoint(int positionX, int positionY)
+        {
+            Point point = new Point(positionX * GameWidth, positionY * GameHeight);
+            _pointList.Add(point);
+
         }
 
         public void CreateLineList(Brush brush)
         {
-            if (!_diamondView)
+            if (_isClassisView)
             {
-                for (int i = 0; i <= NumberOfRows; ++i)
-                {
-                    for (int j = 0; j < NumberOfColums; ++j)
-                    {
-                        int x1 = j * GameWidth;
-                        int y1 = i * GameHeight;
-                        int x2 = x1 + GameWidth;
-                        int y2 = y1;
-                        Line line = new Line
-                        {
-                            X1 = x1,
-                            Y1 = y1,
-                            X2 = x2,
-                            Y2 = y2,
-                            Stroke = brush,
-                            StrokeThickness = 8,
-                            Cursor = Cursors.Hand
-                        };
-                        line.MouseEnter += Line_MouseEnter;
-                        line.MouseLeave += Line_MouseLeave;
-                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                        _gameState.LineList.Add(line);
-                    }
-                }
-
-                for (int i = 0; i < NumberOfRows; ++i)
-                {
-                    for (int j = 0; j <= NumberOfColums; ++j)
-                    {
-                        int x1 = j * GameWidth;
-                        int y1 = i * GameHeight;
-                        int x2 = x1;
-                        int y2 = y1 + GameHeight;
-                        Line line = new Line
-                        {
-                            X1 = x1,
-                            Y1 = y1,
-                            X2 = x2,
-                            Y2 = y2,
-                            Stroke = brush,
-                            StrokeThickness = 8,
-                            Cursor = Cursors.Hand
-                        };
-                        line.MouseEnter += Line_MouseEnter;
-                        line.MouseLeave += Line_MouseLeave;
-                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                        _gameState.LineList.Add(line);
-                    }
-                }
+                CreateClassicGrid(brush);
             }
             else
             {
-                int offset = (NumberOfColums - 1) / 2;
-                for (int i = 0; i <= NumberOfRows / 2; ++i)
-                {
-                    for (int j = offset-i; j < NumberOfColums-(offset-i); ++j)
-                    {
-                        int x1 = j * GameWidth;
-                        int y1 = i * GameHeight;
-                        int x2 = x1 + GameWidth;
-                        int y2 = y1;
-                        Line line = new Line
-                        {
-                            X1 = x1,
-                            Y1 = y1,
-                            X2 = x2,
-                            Y2 = y2,
-                            Stroke = brush,
-                            StrokeThickness = 8,
-                            Cursor = Cursors.Hand
-                        };
-                        line.MouseEnter += Line_MouseEnter;
-                        line.MouseLeave += Line_MouseLeave;
-                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                        _gameState.LineList.Add(line);
-                    }
-                }
-
-                for (int i = 0; i < NumberOfRows/2; ++i)
-                {
-                    for (int j = offset-i; j <= NumberOfColums - (offset-i); ++j)
-                    {
-                        int x1 = j * GameWidth;
-                        int y1 = i * GameHeight;
-                        int x2 = x1;
-                        int y2 = y1 + GameHeight;
-                        Line line = new Line
-                        {
-                            X1 = x1,
-                            Y1 = y1,
-                            X2 = x2,
-                            Y2 = y2,
-                            Stroke = brush,
-                            StrokeThickness = 8,
-                            Cursor = Cursors.Hand
-                        };
-                        line.MouseEnter += Line_MouseEnter;
-                        line.MouseLeave += Line_MouseLeave;
-                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                        _gameState.LineList.Add(line);
-                    }
-                }
-
-                for (int i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
-                {
-                    for (int j = i - offset - 1; j < NumberOfColums - (i - offset-1); ++j)
-                    {
-                        int x1 = j * GameWidth;
-                        int y1 = i * GameHeight;
-                        int x2 = x1 + GameWidth;
-                        int y2 = y1;
-                        Line line = new Line
-                        {
-                            X1 = x1,
-                            Y1 = y1,
-                            X2 = x2,
-                            Y2 = y2,
-                            Stroke = brush,
-                            StrokeThickness = 8,
-                            Cursor = Cursors.Hand
-                        };
-                        line.MouseEnter += Line_MouseEnter;
-                        line.MouseLeave += Line_MouseLeave;
-                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                        _gameState.LineList.Add(line);
-
-
-                    }
-                }
-                for (int i = NumberOfRows / 2; i <= NumberOfRows; ++i)
-                {
-                    for (int j = i - offset; j < NumberOfColums - (i - offset - 1); ++j)
-                    {
-                        int x1 = j * GameWidth;
-                        int y1 = i * GameHeight;
-                        int x2 = x1;
-                        int y2 = y1 + GameHeight;
-                        Line line = new Line
-                        {
-                            X1 = x1,
-                            Y1 = y1,
-                            X2 = x2,
-                            Y2 = y2,
-                            Stroke = brush,
-                            StrokeThickness = 8,
-                            Cursor = Cursors.Hand
-                        };
-                        line.MouseEnter += Line_MouseEnter;
-                        line.MouseLeave += Line_MouseLeave;
-                        line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-                        _gameState.LineList.Add(line);
-
-                    }
-                }
-
+                CreateDiamonGrid(brush);
             }
+        }
+
+        private void CreateClassicGrid(Brush brush)
+        {
+            for (int i = 0; i <= NumberOfRows; ++i)
+            {
+                for (int j = 0; j < NumberOfColums; ++j)
+                {
+                    AddHorizontalLine(j, i, brush);
+                }
+            }
+
+            for (int i = 0; i < NumberOfRows; ++i)
+            {
+                for (int j = 0; j <= NumberOfColums; ++j)
+                {
+                    AddVerticalLine(j, i, brush);
+                }
+            }
+        }
+
+        private void CreateDiamonGrid(Brush brush)
+        {
+            int offset = (NumberOfColums - 1) / 2;
+            for (int i = 0; i <= NumberOfRows / 2; ++i)
+            {
+                for (int j = offset - i; j < NumberOfColums - (offset - i); ++j)
+                {
+                    AddHorizontalLine(j, i, brush);
+                }
+            }
+
+            for (int i = 0; i < NumberOfRows / 2; ++i)
+            {
+                for (int j = offset - i; j <= NumberOfColums - (offset - i); ++j)
+                {
+                    AddVerticalLine(j, i, brush);
+                }
+            }
+
+            for (int i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
+            {
+                for (int j = i - offset - 1; j < NumberOfColums - (i - offset - 1); ++j)
+                {
+                    AddHorizontalLine(j, i, brush);
+                }
+            }
+            for (int i = NumberOfRows / 2; i <= NumberOfRows; ++i)
+            {
+                for (int j = i - offset; j < NumberOfColums - (i - offset - 1); ++j)
+                {
+                    AddVerticalLine(j, i, brush);
+                }
+            }
+
+        }
+
+
+        private void AddHorizontalLine(int positionX, int positionY, Brush brush)
+        {
+            int x1 = positionX * GameWidth;
+            int y1 = positionY * GameHeight;
+            int x2 = x1 + GameWidth;
+            int y2 = y1;
+            Line line = new Line
+            {
+                X1 = x1,
+                Y1 = y1,
+                X2 = x2,
+                Y2 = y2,
+                Stroke = brush,
+                StrokeThickness = 8,
+                Cursor = Cursors.Hand
+            };
+            line.MouseEnter += Line_MouseEnter;
+            line.MouseLeave += Line_MouseLeave;
+            line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+            _gameState.LineList.Add(line);
+        }
+
+        private void AddVerticalLine(int positionX, int positionY, Brush brush)
+        {
+            int x1 = positionX * GameWidth;
+            int y1 = positionY * GameHeight;
+            int x2 = x1;
+            int y2 = y1 + GameHeight;
+            Line line = new Line
+            {
+                X1 = x1,
+                Y1 = y1,
+                X2 = x2,
+                Y2 = y2,
+                Stroke = brush,
+                StrokeThickness = 8,
+                Cursor = Cursors.Hand
+            };
+            line.MouseEnter += Line_MouseEnter;
+            line.MouseLeave += Line_MouseLeave;
+            line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+            _gameState.LineList.Add(line);
+
         }
 
         public void Window_InitScore(object sender, EventArgs e)

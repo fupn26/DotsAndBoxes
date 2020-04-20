@@ -15,8 +15,8 @@
         <DataTemplate x:Name="WelcomeView" DataType="{x:Type viewmodels:WelcomeViewModel}">
             <views:WelcomeView DataContext="{Binding}"/>
         </DataTemplate>
-        <DataTemplate x:Name="DiamondView" DataType="{x:Type viewmodels:DiamondGameViewModel}">
-            <views:DiamondGameView DataContext="{Binding}"/>
+        <DataTemplate x:Name="DiamondGameView" DataType="{x:Type viewmodels:DiamondGameViewModel}">
+            <views:DiamondGameView CanvasHeight="490" CanvasWidth="490" DataContext="{Binding}" Loaded="DiamondGameView_Loaded"/>
         </DataTemplate>
     </Window.Resources>
     <ContentControl Content="{Binding}"/>
