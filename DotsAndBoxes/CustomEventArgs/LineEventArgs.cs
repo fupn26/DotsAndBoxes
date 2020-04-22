@@ -1,15 +1,16 @@
-﻿using System;
+﻿using DotsAndBoxes.Structures;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Shapes;
 
 namespace DotsAndBoxes.CustomEventArgs
 {
-    class LineEventArgs : EventArgs
+    public class LineEventArgs : EventArgs
     {
-        public Line Line { get; set; }
+        public LineStructure Line { get; set; }
 
-        public LineEventArgs(Line line)
+        public LineEventArgs(LineStructure line)
         {
             this.Line = line;
         }

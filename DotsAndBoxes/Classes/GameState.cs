@@ -7,15 +7,17 @@ using System.Windows.Shapes;
 namespace DotsAndBoxes.Classes
 {
     //[JsonConverter(typeof(GameStateConverter))]
-    class GameState
+    public class GameState
     {
+        public bool IsEnded { get; set; }
+        public int Length { get; set; }
         public string Player1 { get; set; }
         public string Player2 { get; set; }
         public int TurnID { get; set; }
         public int[] Scores { get; set; }
 
         public List<RectangleStructure> PlacedRectangles { get; set; }
-        public List<Line> LineList { get; set; }
+        public List<LineStructure> LineList { get; set; }
 
         public GameState()
         {
@@ -24,50 +26,50 @@ namespace DotsAndBoxes.Classes
             TurnID = 0;
             Scores = new int[2];
             PlacedRectangles = new List<RectangleStructure>();
-            LineList = new List<Line>();
+            LineList = new List<LineStructure>();
         }
 
-        public GameStateSerializable ToSerializable()
-        {
-            GameStateSerializable gameState = new GameStateSerializable();
-            gameState.Player1 = Player1;
-            gameState.Player2 = Player2;
-            gameState.Scores = Scores;
-            gameState.Rectangles = PlacedRectangles;
-            gameState.LineList = new List<LineStructure>();
-            foreach (Line line in LineList)
-            {
-                LineStructure lineStructure = new LineStructure();
-                lineStructure.Point1 = new Point((int)line.X1, (int)line.Y1);
-                lineStructure.Point2 = new Point((int)line.X2, (int)line.Y2);
-                lineStructure.StrokeColor = line.Stroke.ToString();
-                lineStructure.StrokeThickness = line.StrokeThickness;
-                gameState.LineList.Add(lineStructure);
-            }
+        //public GameStateSerializable ToSerializable()
+        //{
+        //    GameStateSerializable gameState = new GameStateSerializable();
+        //    gameState.Player1 = Player1;
+        //    gameState.Player2 = Player2;
+        //    gameState.Scores = Scores;
+        //    gameState.Rectangles = PlacedRectangles;
+        //    gameState.LineList = new List<LineStructure>();
+        //    foreach (Line line in LineList)
+        //    {
+        //        LineStructure lineStructure = new LineStructure();
+        //        lineStructure.Point1 = new Point((int)line.X1, (int)line.Y1);
+        //        lineStructure.Point2 = new Point((int)line.X2, (int)line.Y2);
+        //        lineStructure.StrokeColor = line.Stroke.ToString();
+        //        lineStructure.StrokeThickness = line.StrokeThickness;
+        //        gameState.LineList.Add(lineStructure);
+        //    }
 
-            return gameState;
-        }
+        //    return gameState;
+        //}
 
-        public void FromSerializable(GameStateSerializable gameState)
-        {
-            Player1 = gameState.Player1;
-            Player2 = gameState.Player2;
-            Scores = gameState.Scores;
-            foreach (RectangleStructure rectangle in gameState.Rectangles)
-            {
-                PlacedRectangles.Add(rectangle);
-            }
-            foreach (LineStructure lineStructure in gameState.LineList)
-            {
-                Line line = new Line();
-                line.X1 = lineStructure.Point1.X;
-                line.Y1 = lineStructure.Point1.Y;
-                line.X2 = lineStructure.Point2.X;
-                line.Y2 = lineStructure.Point2.Y;
-                line.Stroke = (Brush)new BrushConverter().ConvertFromString(lineStructure.StrokeColor);
-                line.StrokeThickness = lineStructure.StrokeThickness;
-                LineList.Add(line);
-            }
-        }
+        //public void FromSerializable(GameStateSerializable gameState)
+        //{
+        //    Player1 = gameState.Player1;
+        //    Player2 = gameState.Player2;
+        //    Scores = gameState.Scores;
+        //    foreach (RectangleStructure rectangle in gameState.Rectangles)
+        //    {
+        //        PlacedRectangles.Add(rectangle);
+        //    }
+        //    foreach (LineStructure lineStructure in gameState.LineList)
+        //    {
+        //        Line line = new Line();
+        //        line.X1 = lineStructure.Point1.X;
+        //        line.Y1 = lineStructure.Point1.Y;
+        //        line.X2 = lineStructure.Point2.X;
+        //        line.Y2 = lineStructure.Point2.Y;
+        //        line.Stroke = (Brush)new BrushConverter().ConvertFromString(lineStructure.StrokeColor);
+        //        line.StrokeThickness = lineStructure.StrokeThickness;
+        //        LineList.Add(line);
+        //    }
+        //}
     }
 }

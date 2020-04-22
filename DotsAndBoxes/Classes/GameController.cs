@@ -12,7 +12,7 @@ using System.Windows.Shapes;
 
 namespace DotsAndBoxes.Classes
 {
-    class GameController : StateChecker
+    public class GameController : StateChecker
     {
         public int EllipseSize { get; private set; }
 
@@ -42,8 +42,9 @@ namespace DotsAndBoxes.Classes
         public event EventHandler ScoreChanged;
         public event EventHandler<RectangleEventArgs> RectangleEnclosed;
         public event EventHandler RestartDone;
-        public event EventHandler<ListEventArgs<Line>> AITurn;
+        public event EventHandler<ListEventArgs<LineStructure>> AITurn;
         public event EventHandler GameEnded;
+        public event EventHandler<LineEventArgs> LineColored; 
 
         private GameState _gameState;
         private AI _ai;
@@ -52,16 +53,16 @@ namespace DotsAndBoxes.Classes
 
         private List<Point> _pointList;
 
-        private List<GameStateSerializable> _prevGameStates;
+        private List<GameState> _prevGameStates;
         public ReadOnlyCollection<Point> PointList { 
             get
             {
                 return new ReadOnlyCollection<Point>(_pointList);
             } 
         }
-        public ReadOnlyCollection<Line> LineList { get
+        public ReadOnlyCollection<LineStructure> LineList { get
             {
-                return new ReadOnlyCollection<Line>(_gameState.LineList);
+                return new ReadOnlyCollection<LineStructure>(_gameState.LineList);
             } 
         }
 
@@ -80,7 +81,7 @@ namespace DotsAndBoxes.Classes
             NumberOfColums = (int)canvasWidth / GameWidth;
             _gameState = new GameState();
             _pointList = new List<Point>();
-            _prevGameStates = new List<GameStateSerializable>();
+            _prevGameStates = new List<GameState>();
             _ai = new AI(GameHeight, GameWidth);
             AITurn += _ai.GameController_AITurn;
             _ai.LineChosen += AI_LineChosen;
@@ -91,12 +92,12 @@ namespace DotsAndBoxes.Classes
         private void Restart()
         {
             _gameState = new GameState();
-            if (!_prevGameStates[^1].isEnded)
+            if (!_prevGameStates[^1].IsEnded)
             {
                 _prevGameStates.RemoveAt(_prevGameStates.Count - 1);
                 DataProvider.WriteJson(_prevGameStates);
             }
-            CreateLineList(Brushes.White);
+            CreateLineList(Brushes.White.ToString());
             OnRestartDone();
         }
 
@@ -110,28 +111,29 @@ namespace DotsAndBoxes.Classes
             _prevGameStates = DataProvider.ReadJson();
             if (_prevGameStates != null)
             {
-                GameStateSerializable gameState = _prevGameStates[^1];
-                if (gameState.isEnded)
+                GameState gameState = _prevGameStates[^1];
+                if (gameState.IsEnded)
                 {
-                    CreateLineList(Brushes.White);
+                    CreateLineList(Brushes.White.ToString());
                     return false;
                 }
-                _gameState.FromSerializable(gameState);
+                _gameState = gameState;
                 TimeElapsed = gameState.Length;
                 return true;
             }
             else
             {
-                CreateLineList(Brushes.White);
+                _prevGameStates = new List<GameState>();
+                CreateLineList(Brushes.White.ToString());
                 return false;
             }
         }
 
         private void AI_LineChosen(object sender, LineEventArgs e)
         {
-            foreach (Line line in _gameState.LineList)
+            foreach (LineStructure line in _gameState.LineList)
             {
-                if (areEqualLines(line, e.Line))
+                if (AreEqualLines(line, e.Line))
                 {
                     ChangeTurn(line);
                 }
@@ -196,7 +198,7 @@ namespace DotsAndBoxes.Classes
 
         }
 
-        public void CreateLineList(Brush brush)
+        public void CreateLineList(string brush)
         {
             if (_isClassisView)
             {
@@ -208,7 +210,7 @@ namespace DotsAndBoxes.Classes
             }
         }
 
-        private void CreateClassicGrid(Brush brush)
+        private void CreateClassicGrid(string brush)
         {
             for (int i = 0; i <= NumberOfRows; ++i)
             {
@@ -227,7 +229,7 @@ namespace DotsAndBoxes.Classes
             }
         }
 
-        private void CreateDiamonGrid(Brush brush)
+        private void CreateDiamonGrid(string brush)
         {
             int offset = (NumberOfColums - 1) / 2;
             for (int i = 0; i <= NumberOfRows / 2; ++i)
@@ -264,49 +266,40 @@ namespace DotsAndBoxes.Classes
         }
 
 
-        private void AddHorizontalLine(int positionX, int positionY, Brush brush)
+        private void AddHorizontalLine(int positionX, int positionY, string brush)
         {
             int x1 = positionX * GameWidth;
             int y1 = positionY * GameHeight;
             int x2 = x1 + GameWidth;
             int y2 = y1;
-            Line line = new Line
+            LineStructure line = new LineStructure
             {
                 X1 = x1,
                 Y1 = y1,
                 X2 = x2,
                 Y2 = y2,
-                Stroke = brush,
-                StrokeThickness = 8,
-                Cursor = Cursors.Hand
+                StrokeColor = brush,
+                StrokeThickness = 8
             };
-            line.MouseEnter += Line_MouseEnter;
-            line.MouseLeave += Line_MouseLeave;
-            line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
             _gameState.LineList.Add(line);
         }
 
-        private void AddVerticalLine(int positionX, int positionY, Brush brush)
+        private void AddVerticalLine(int positionX, int positionY, string brush)
         {
             int x1 = positionX * GameWidth;
             int y1 = positionY * GameHeight;
             int x2 = x1;
             int y2 = y1 + GameHeight;
-            Line line = new Line
+            LineStructure line = new LineStructure
             {
                 X1 = x1,
                 Y1 = y1,
                 X2 = x2,
                 Y2 = y2,
-                Stroke = brush,
-                StrokeThickness = 8,
-                Cursor = Cursors.Hand
+                StrokeColor = brush,
+                StrokeThickness = 8
             };
-            line.MouseEnter += Line_MouseEnter;
-            line.MouseLeave += Line_MouseLeave;
-            line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
             _gameState.LineList.Add(line);
-
         }
 
         public void Window_InitScore(object sender, EventArgs e)
@@ -323,7 +316,7 @@ namespace DotsAndBoxes.Classes
         {
             if (ReadPreviousState())
             {
-                RestorePreferencesOfLines();
+                //RestorePreferencesOfLines();
                 RestorePlacedRectangles();
             }
         }
@@ -333,19 +326,24 @@ namespace DotsAndBoxes.Classes
             WriteGameState(false);
         }
 
-        private void RestorePreferencesOfLines()
+        public void Window_LineClicked(object seder, LineEventArgs e)
         {
-            foreach (Line line in _gameState.LineList)
+            foreach(LineStructure line in _gameState.LineList)
             {
-                line.Cursor = Cursors.Hand;
-                line.MouseEnter += this.Line_MouseEnter;
-                line.MouseLeave += this.Line_MouseLeave;
-                line.MouseLeftButtonDown += this.Line_MouseLeftButtonDown;
+                if (AreEqualLines(line, e.Line))
+                {
+                    ChangeTurn(line);
+                    break;
+                }
             }
         }
 
-        private void ChangeTurn(Line line)
+        private void ChangeTurn(LineStructure line)
         {
+            if (IsLineColored(line))
+            {
+                return;
+            }
             ColorChosenLine(line);
             Tuple<List<Point>, int> result = CheckState(line, _gameState.LineList);
             _gameState.Scores[TurnId] += result.Item2;
@@ -359,10 +357,13 @@ namespace DotsAndBoxes.Classes
                 OnScoreChanged();
                 IsGameEnded();
             }
-            else
-            {
-                TurnId = 1 - TurnId;
-            }
+            //else
+            //{
+            //    TurnId = 1 - TurnId;
+            //}
+
+            TurnId = 1 - TurnId;
+
             if (TurnId == 1)
             {
                 OnAiTurn();
@@ -372,55 +373,26 @@ namespace DotsAndBoxes.Classes
 
         private void OnAiTurn()
         {
-            AITurn?.Invoke(this, new ListEventArgs<Line>(_gameState.LineList));
+            AITurn?.Invoke(this, new ListEventArgs<LineStructure>(_gameState.LineList));
         }
 
-        private void ColorChosenLine(Line line)
+        private void ColorChosenLine(LineStructure line)
         {
-            if (!BrushCompare(line.Stroke, Brushes.Black) && !BrushCompare(line.Stroke, Brushes.White))
-            {
-                return;
-            }
             if (TurnId == 0)
             {
-                line.Stroke = Brushes.DarkBlue;
+                line.StrokeColor = Brushes.DarkBlue.ToString();
             }
             else
             {
-                line.Stroke = Brushes.DarkRed;
+                line.StrokeColor = Brushes.DarkRed.ToString();
             }
+
+            OnLineColored(line);
         }
 
-        private void Line_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void OnLineColored(LineStructure line)
         {
-            if (sender is Line)
-            {
-                ChangeTurn((Line)sender);
-            }
-        }
-
-        private void Line_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (sender is Line line)
-            {
-                if (BrushCompare(line.Stroke, Brushes.Black))
-                {
-                    line.Stroke = Brushes.White;
-                }
-            }
-        }
-
-
-        private void Line_MouseEnter(object sender, MouseEventArgs e)
-        {
-            if (sender is Line line)
-            {
-                if (BrushCompare(line.Stroke, Brushes.White))
-                {
-                    line.Stroke = Brushes.Black;
-
-                }
-            }
+            LineColored?.Invoke(this, new LineEventArgs(line));
         }
 
         private void CreateNewRectangleStructure(Point point)
@@ -459,9 +431,9 @@ namespace DotsAndBoxes.Classes
 
         private void IsGameEnded()
         {
-            foreach (Line line in _gameState.LineList)
+            foreach (LineStructure line in _gameState.LineList)
             {
-                if (BrushCompare(line.Stroke, Brushes.White) || BrushCompare(line.Stroke, Brushes.Black))
+                if (!IsLineColored(line))
                 {
                     return;
                 }
@@ -471,10 +443,9 @@ namespace DotsAndBoxes.Classes
 
         private void WriteGameState(bool isEnded)
         {
-            GameStateSerializable stateSerializable = _gameState.ToSerializable();
-            stateSerializable.isEnded = isEnded;
-            stateSerializable.Length = TimeElapsed;
-            _prevGameStates.Add(stateSerializable);
+            _gameState.IsEnded = isEnded;
+            _gameState.Length = TimeElapsed;
+            _prevGameStates.Add(_gameState);
             DataProvider.WriteJson(_prevGameStates);
         }
 

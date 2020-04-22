@@ -28,6 +28,8 @@ namespace DotsAndBoxes.Views
 
         public event EventHandler SaveGame;
 
+        public event EventHandler<LineEventArgs> LineClicked;
+
         public double CanvasWidth
         {
             get { return (double)GetValue(CanvasWidthProperty); }
@@ -69,6 +71,8 @@ namespace DotsAndBoxes.Views
 
         private DispatcherTimer _timer;
 
+        private Line _lastLine;
+
 
         public GameView()
         {
@@ -77,15 +81,18 @@ namespace DotsAndBoxes.Views
 
         public void LoadComponents()
         {
-            gameController = new GameController(CanvasHeight, CanvasWidth, 70, 70, IsClassicView);
+            gameController = new GameController(CanvasHeight, CanvasWidth, 100, 100, IsClassicView);
             gameController.ScoreChanged += GameController_ScoreChanged;
             gameController.RectangleEnclosed += GameController_RectangleEnclosed;
             gameController.RestartDone += GameController_RestartDone;
             gameController.GameEnded += GameController_GameEnded;
+            gameController.LineColored += GameController_LineColored;
             InitScore += gameController.Window_InitScore;
             RestoreState += gameController.Window_RestoreState;
             RestartGame += gameController.Windows_RestartGame;
             SaveGame += gameController.Window_SaveGame;
+            LineClicked += gameController.Window_LineClicked;
+
             isCanvasEnabled = true;
             OnRestoreState();
             InitGame();
@@ -95,6 +102,35 @@ namespace DotsAndBoxes.Views
             };
             _timer.Tick += Timer_Tick;
             _timer.Start();
+        }
+
+        private bool CompareLineToLineStruct(Line line, LineStructure lineStructure)
+        {
+            return line.X1 == lineStructure.X1 && line.X2 == lineStructure.X2 && line.Y1 == lineStructure.Y1 && line.Y2 == lineStructure.Y2; 
+        }
+
+        private void GameController_LineColored(object sender, LineEventArgs e)
+        {
+            foreach(UIElement element in canvas.Children)
+            {
+                if (element is Line line)
+                {
+                    if (CompareLineToLineStruct(line, e.Line))
+                    {
+                        ColorLine(line, e.Line.StrokeColor);
+                    }
+                }
+            }
+            
+        }
+
+        private void ColorLine(Line line, string brush)
+        {
+            line.Stroke = (Brush)new BrushConverter().ConvertFromString(brush);
+            line.Cursor = Cursors.Arrow;
+            line.MouseEnter -= Line_MouseEnter;
+            line.MouseLeave -= Line_MouseLeave;
+            line.MouseLeftButtonDown -= Line_MouseLeftButtonDown;
         }
 
         private void GameController_GameEnded(object sender, EventArgs e)
@@ -152,7 +188,6 @@ namespace DotsAndBoxes.Views
 
         private void InitGame()
         {
-            gameController.TimeElapsed = 0;
             UpdateTimerText();
             OnInitScore();
             DrawLines();
@@ -162,6 +197,7 @@ namespace DotsAndBoxes.Views
         private void Restart()
         {
             canvas.Children.Clear();
+            gameController.TimeElapsed = 0;
             InitGame();
         }
 
@@ -211,10 +247,29 @@ namespace DotsAndBoxes.Views
 
         private void DrawLines()
         {
-            foreach (Line line in gameController.LineList)
+            foreach (LineStructure lineStructure in gameController.LineList)
             {
+
+                Line line = new Line
+                {
+                    X1 = lineStructure.X1,
+                    Y1 = lineStructure.Y1,
+                    X2 = lineStructure.X2,
+                    Y2 = lineStructure.Y2,
+                    Stroke = (Brush)new BrushConverter().ConvertFromString(lineStructure.StrokeColor),
+                    StrokeThickness = 8,
+                };
+                if (line.Stroke.ToString() == Brushes.White.ToString())
+                {
+                    line.Cursor = Cursors.Hand;
+                }
+                line.MouseEnter += Line_MouseEnter;
+                line.MouseLeave += Line_MouseLeave;
+                line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+
                 canvas.Children.Add(line);
             }
+            return;
         }
 
         private void PauseGame()
@@ -276,6 +331,57 @@ namespace DotsAndBoxes.Views
         private void SaveButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             OnSaveGameState();
+        }
+
+        private void Line_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Line line)
+            {
+                _lastLine = line;
+                OnLineClicked();
+            }
+        }
+
+        private void OnLineClicked()
+        {
+            LineClicked?.Invoke(this, new LineEventArgs(ConvertLineToLineStructure(_lastLine)));
+        }
+
+        private LineStructure ConvertLineToLineStructure(Line line)
+        {
+            var lineStructure = new LineStructure
+            {
+                X1 = (int)line.X1,
+                Y1 = (int)line.Y1,
+                X2 = (int)line.X2,
+                Y2 = (int)line.Y2
+            };
+
+            return lineStructure;
+        }
+
+        private void Line_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (sender is Line line)
+            {
+                if (line.Stroke.ToString() == Brushes.Black.ToString())
+                {
+                    line.Stroke = Brushes.White;
+                }
+            }
+        }
+
+
+        private void Line_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is Line line)
+            {
+                if (line.Stroke.ToString() ==  Brushes.White.ToString())
+                {
+                    line.Stroke = Brushes.Black;
+
+                }
+            }
         }
 
         private void OnSaveGameState()

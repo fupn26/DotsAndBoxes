@@ -23,8 +23,8 @@ namespace DotsAndBoxes
         public MainWindow()
         {
             InitializeComponent();
-            //DataContext = new ClassicGameViewModel();
-            DataContext = new DiamondGameViewModel();
+            DataContext = new ClassicGameViewModel();
+            //DataContext = new DiamondGameViewModel();
             //DataContext = new WelcomeViewModel();
         }
 

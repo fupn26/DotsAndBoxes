@@ -2,7 +2,7 @@
 
 namespace DotsAndBoxes.Structures
 {
-    struct GameStateSerializable
+    public struct GameStateSerializable
     {
         public bool isEnded { get; set; }
         public int Length { get; set; }

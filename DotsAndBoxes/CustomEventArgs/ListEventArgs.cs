@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotsAndBoxes.CustomEventArgs
 {
-    class ListEventArgs<T> : EventArgs
+    public class ListEventArgs<T> : EventArgs
     {
         public List<T> RefList { get; set; }
 

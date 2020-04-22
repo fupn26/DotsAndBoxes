@@ -3,7 +3,7 @@ using System;
 
 namespace DotsAndBoxes.CustomEventArgs
 {
-    class RectangleEventArgs : EventArgs
+    public class RectangleEventArgs : EventArgs
     {
         public RectangleStructure  rectangleStructure { get; }
         public RectangleEventArgs(RectangleStructure rectangle)

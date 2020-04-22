@@ -7,16 +7,16 @@ using System.Text.Json;
 
 namespace DotsAndBoxes.Classes
 {
-    static class DataProvider
+    public static class DataProvider
     {
         private readonly static string fileName = "saved_game.json";
-        public static List<GameStateSerializable> ReadJson()
+        public static List<GameState> ReadJson()
         {
             if (File.Exists(fileName))
             {
-                List<GameStateSerializable> prevGameStates;
+                List<GameState> prevGameStates;
                 string jsonString = File.ReadAllText(fileName);
-                prevGameStates = JsonSerializer.Deserialize<List<GameStateSerializable>>(jsonString);
+                prevGameStates = JsonSerializer.Deserialize<List<GameState>>(jsonString);
 
                 return prevGameStates;
             }
@@ -26,10 +26,10 @@ namespace DotsAndBoxes.Classes
             }
         }
 
-        public static void WriteJson(List<GameStateSerializable> prevGameStates)
+        public static void WriteJson(List<GameState> prevGameStates)
         {
             string jsonString;
-            string v = JsonSerializer.Serialize<List<GameStateSerializable>>(prevGameStates);
+            string v = JsonSerializer.Serialize<List<GameState>>(prevGameStates);
             jsonString = v;
             File.WriteAllText(fileName, jsonString);
         }

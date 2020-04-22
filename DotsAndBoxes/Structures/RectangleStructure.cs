@@ -2,7 +2,7 @@
 
 namespace DotsAndBoxes.Structures
 {
-    class RectangleStructure
+    public class RectangleStructure
     {
         public Point RefPoint { get; set; }
         public double Width { get; set; }

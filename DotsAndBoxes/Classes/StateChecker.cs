@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotsAndBoxes.Structures;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
@@ -7,13 +8,15 @@ using System.Windows.Shapes;
 
 namespace DotsAndBoxes.Classes
 {
-    class StateChecker
+    public class StateChecker
     {
         public int GameWidth { get; protected set; }
         public int GameHeight { get; protected set; }
+        protected readonly string _blackBrushCode = Brushes.Black.ToString();
+        protected readonly string _whiteBrushCode = Brushes.White.ToString();
 
 
-        protected bool areEqualLines(Line line1, Line line2)
+        protected bool AreEqualLines(LineStructure line1, LineStructure line2)
         {
             if (line1.X1 == line2.X1 && line1.Y1 == line2.Y1 && line1.X2 == line2.X2 && line1.Y2 == line2.Y2 ||
                 line1.X1 == line2.X2 && line1.Y1 == line2.Y2 && line1.X2 == line2.X1 && line1.Y2 == line2.Y1)
@@ -23,96 +26,103 @@ namespace DotsAndBoxes.Classes
             return false;
         }
 
-        protected bool BrushCompare(Brush brush1, Brush brush2)
+        protected bool BrushCompare(string brushAsString1, string brushAsString2)
         {
-            if (brush1.ToString() == brush2.ToString())
+            return brushAsString1 == brushAsString2;
+        }
+
+
+        protected LineStructure MoveUp(LineStructure line)
+        {
+            LineStructure newLine = new LineStructure
             {
-                return true;
-            }
-            else
+                X1 = line.X1,
+                X2 = line.X2,
+                Y1 = line.Y1 - GameHeight,
+                Y2 = line.Y2 - GameHeight
+            };
+            return newLine;
+        }
+        protected LineStructure MoveDown(LineStructure line)
+        {
+            LineStructure newLine = new LineStructure
+            {
+                X1 = line.X1,
+                X2 = line.X2,
+                Y1 = line.Y1 + GameHeight,
+                Y2 = line.Y2 + GameHeight
+            };
+            return newLine;
+        }
+
+        protected LineStructure MoveRight(LineStructure line)
+        {
+            LineStructure newLine = new LineStructure
+            {
+                X1 = line.X1 + GameWidth,
+                X2 = line.X2 + GameWidth,
+                Y1 = line.Y1,
+                Y2 = line.Y2
+            };
+            return newLine;
+        }
+
+        protected LineStructure MoveLeft(LineStructure line)
+        {
+            LineStructure newLine = new LineStructure
+            {
+                X1 = line.X1 - GameWidth,
+                X2 = line.X2 - GameWidth,
+                Y1 = line.Y1,
+                Y2 = line.Y2
+            };
+            return newLine;
+        }
+
+        protected bool IsLineColored(LineStructure line)
+        {
+            if (BrushCompare(line.StrokeColor, Brushes.Black.ToString()) ||
+                    BrushCompare(line.StrokeColor, Brushes.White.ToString()))
             {
                 return false;
             }
+            return true;
         }
 
-
-        private Line moveUp(Line line)
-        {
-            Line newLine = new Line();
-            newLine.X1 = line.X1;
-            newLine.X2 = line.X2;
-            newLine.Y1 = line.Y1 + GameHeight;
-            newLine.Y2 = line.Y2 + GameHeight;
-            return newLine;
-        }
-        private Line moveDown(Line line)
-        {
-            Line newLine = new Line();
-            newLine.X1 = line.X1;
-            newLine.X2 = line.X2;
-            newLine.Y1 = line.Y1 - GameHeight;
-            newLine.Y2 = line.Y2 - GameHeight;
-            return newLine;
-        }
-
-        private Line moveRight(Line line)
-        {
-            Line newLine = new Line();
-            newLine.X1 = line.X1 + GameWidth;
-            newLine.X2 = line.X2 + GameWidth;
-            newLine.Y1 = line.Y1;
-            newLine.Y2 = line.Y2;
-            return newLine;
-        }
-
-        private Line moveLeft(Line line)
-        {
-            Line newLine = new Line();
-            newLine.X1 = line.X1 - GameWidth;
-            newLine.X2 = line.X2 - GameWidth;
-            newLine.Y1 = line.Y1;
-            newLine.Y2 = line.Y2;
-            return newLine;
-        }
-
-        protected Tuple<List<Point>, int> CheckState(Line refLine, List<Line> lineList)
+        protected Tuple<List<Point>, int> CheckState(LineStructure refLine, List<LineStructure> lineList)
         {
             Tuple<List<Point>, int> result;
             List<Point> pointList = new List<Point>();
             int counter = 0;
-            if (refLine.X1 == refLine.X2)
+            if (IsVerticalLine(refLine))
             {
-                foreach (Line element in lineList)
+                foreach (LineStructure element in lineList)
                 {
-                    if (areEqualLines(moveLeft(refLine), element) &&
-                        !BrushCompare(element.Stroke, Brushes.Black) &&
-                        !BrushCompare(element.Stroke, Brushes.White))
+                    if (AreEqualLines(MoveLeft(refLine), element) &&
+                        IsLineColored(element))
                     {
-                        counter += isSquare(refLine, element, true, lineList, pointList);
+                        counter += IsSquare(refLine, element, true, lineList, pointList);
                     }
-                    else if (areEqualLines(moveRight(refLine), element) &&
-                        !BrushCompare(element.Stroke, Brushes.Black) &&
-                        !BrushCompare(element.Stroke, Brushes.White))
+                    else if (AreEqualLines(MoveRight(refLine), element) &&
+                            IsLineColored(element))
                     {
-                        counter += isSquare(refLine, element, true, lineList, pointList);
+                        counter += IsSquare(refLine, element, true, lineList, pointList);
                     }
                 }
             }
             else
             {
-                foreach (Line element in lineList)
+                foreach (LineStructure element in lineList)
                 {
-                    if (areEqualLines(moveUp(refLine), element) &&
-                        !BrushCompare(element.Stroke, Brushes.Black) &&
-                        !BrushCompare(element.Stroke, Brushes.White))
+                    if (AreEqualLines(MoveUp(refLine), element) &&
+                        IsLineColored(element))
                     {
-                        counter += isSquare(refLine, element, false, lineList, pointList);
+                        counter += IsSquare(refLine, element, false, lineList, pointList);
                     }
-                    else if (areEqualLines(moveDown(refLine), element) &&
-                        !BrushCompare(element.Stroke, Brushes.Black) &&
-                        !BrushCompare(element.Stroke, Brushes.White))
+                    else if (AreEqualLines(MoveDown(refLine), element) &&
+                        IsLineColored(element))
                     {
-                        counter += isSquare(refLine, element, false, lineList, pointList);
+                        counter += IsSquare(refLine, element, false, lineList, pointList);
                     }
                 }
             }
@@ -121,7 +131,7 @@ namespace DotsAndBoxes.Classes
             return result;
         }
 
-        private bool isPointsOfLine(Line line, Point p1, Point p2)
+        private bool IsPointsOfLine(LineStructure line, Point p1, Point p2)
         {
             Point lineP1 = new Point((int)line.X1, (int)line.Y1);
             Point lineP2 = new Point((int)line.X2, (int)line.Y2);
@@ -135,7 +145,20 @@ namespace DotsAndBoxes.Classes
             return false;
         }
 
-        private int isSquare(Line line1, Line line2, bool isVertical, List<Line> LineList, List<Point> PointList)
+        protected bool IsVerticalLine(LineStructure line)
+        {
+            if(line.X1 == line.X2)
+            {
+                return true;
+            }
+            return false;
+        } 
+
+        private int IsSquare(LineStructure line1,
+                             LineStructure line2,
+                             bool isVertical,
+                             List<LineStructure> LineList,
+                             List<Point> PointList)
         {
             Point point1 = new Point((int)line1.X1, (int)line1.Y1);
             Point point2 = new Point((int)line1.X2, (int)line1.Y2);
@@ -145,19 +168,17 @@ namespace DotsAndBoxes.Classes
             int counter = 0;
             if (isVertical)
             {
-                foreach (Line element in LineList)
+                foreach (LineStructure element in LineList)
                 {
                     if (element.Y1 == element.Y2)
                     {
-                        if (isPointsOfLine(element, point1, point3) &&
-                            !BrushCompare(element.Stroke, Brushes.Black) &&
-                            !BrushCompare(element.Stroke, Brushes.White))
+                        if (IsPointsOfLine(element, point1, point3) &&
+                            IsLineColored(element))
                         {
                             counter++;
                         }
-                        else if (isPointsOfLine(element, point2, point4) &&
-                            !BrushCompare(element.Stroke, Brushes.Black) &&
-                            !BrushCompare(element.Stroke, Brushes.White))
+                        else if (IsPointsOfLine(element, point2, point4) &&
+                                IsLineColored(element))
                         {
                             counter++;
                         }
@@ -166,19 +187,17 @@ namespace DotsAndBoxes.Classes
             }
             else
             {
-                foreach (Line element in LineList)
+                foreach (LineStructure element in LineList)
                 {
                     if (element.X1 == element.X2)
                     {
-                        if (isPointsOfLine(element, point1, point3) &&
-                            !BrushCompare(element.Stroke, Brushes.Black) &&
-                            !BrushCompare(element.Stroke, Brushes.White))
+                        if (IsPointsOfLine(element, point1, point3) &&
+                            IsLineColored(element))
                         {
                             counter++;
                         }
-                        else if (isPointsOfLine(element, point2, point4) &&
-                            !BrushCompare(element.Stroke, Brushes.Black) &&
-                            !BrushCompare(element.Stroke, Brushes.White))
+                        else if (IsPointsOfLine(element, point2, point4) &&
+                                IsLineColored(element))
                         {
                             counter++;
                         }
@@ -192,11 +211,11 @@ namespace DotsAndBoxes.Classes
             }
             else
             {
-                PointList.Add(minPoint(point1, point2, point3, point4));
+                PointList.Add(MinPoint(point1, point2, point3, point4));
                 return 1;
             }
         }
-        private Point minPoint(Point p1, Point p2, Point p3, Point p4)
+        private Point MinPoint(Point p1, Point p2, Point p3, Point p4)
         {
             Point minp = p1;
             if (p2.X < minp.X || p2.Y < minp.Y)
