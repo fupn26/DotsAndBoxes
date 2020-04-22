@@ -69,22 +69,25 @@ namespace DotsAndBoxes.Classes
             } 
         }
 
-        public GameController(double canvasHeight, double canvasWidth)
+        public GameController() { }
+
+        public void Initialize(double canvasHeight, double canvasWidth)
         {
             EllipseSize = 10;
             _pointList = new List<Point>();
 
             if (GameControllerParameters.IsNewGame)
             {
-                Init(canvasHeight, canvasWidth);
+                StartNewGAme(canvasHeight, canvasWidth);
             }
             else
             {
                 ReadPreviousState(canvasWidth, canvasHeight);
             }
+
         }
 
-        public void Init(double canvasHeight, double canvasWidth)
+        private void StartNewGAme(double canvasHeight, double canvasWidth)
         {
             _gameType = GameControllerParameters.GameType;
             _gameMode = GameControllerParameters.GameMode;
@@ -446,7 +449,7 @@ namespace DotsAndBoxes.Classes
 
         private void OnRectangleEnclosed(RectangleStructure rectangle)
         {
-            RectangleEnclosed?.Invoke(this, new CustomEventArgs<RectangleStructure>(rectangle)); //FIXME not invoked
+            RectangleEnclosed?.Invoke(this, new CustomEventArgs<RectangleStructure>(rectangle));
         }
 
         private void IsGameEnded()

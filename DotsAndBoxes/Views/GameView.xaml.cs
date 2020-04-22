@@ -48,7 +48,7 @@ namespace DotsAndBoxes.Views
 
         public void LoadComponents()
         {
-            gameController = new GameController(canvas.Height, canvas.Width);
+            gameController = new GameController();
             gameController.ScoreChanged += GameController_ScoreChanged;
             gameController.RectangleEnclosed += GameController_RectangleEnclosed;
             gameController.RestartDone += GameController_RestartDone;
@@ -59,6 +59,8 @@ namespace DotsAndBoxes.Views
             RestartGame += gameController.Windows_RestartGame;
             SaveGame += gameController.Window_SaveGame;
             LineClicked += gameController.Window_LineClicked;
+            gameController.Initialize(canvas.Height, canvas.Width);
+
             isCanvasEnabled = true;
 
             //if (NeedLoadGame)
