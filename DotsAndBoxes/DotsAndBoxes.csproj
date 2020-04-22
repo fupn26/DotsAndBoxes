@@ -10,4 +10,10 @@
     <PackageReference Include="MaterialDesignThemes" Version="3.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="Resource1.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

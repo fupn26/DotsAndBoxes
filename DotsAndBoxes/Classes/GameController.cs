@@ -1,4 +1,5 @@
 ﻿using DotsAndBoxes.CustomEventArgs;
+using DotsAndBoxes.Enums;
 using DotsAndBoxes.Structures;
 using System;
 using System.Collections.Generic;
@@ -49,7 +50,9 @@ namespace DotsAndBoxes.Classes
         private GameState _gameState;
         private AI _ai;
 
-        private bool _isClassisView;
+        private GameType _gameType;
+        private GameMode _gameMode;
+        private int _gridSize;
 
         private List<Point> _pointList;
 
@@ -66,36 +69,63 @@ namespace DotsAndBoxes.Classes
             } 
         }
 
-        public GameController(double canvasHeight, double canvasWidth, int gameWidth, int gameHeight, bool diamondView)
+        public GameController(double canvasHeight, double canvasWidth)
         {
-            Init(canvasHeight, canvasWidth, gameWidth, gameHeight, diamondView);
+            EllipseSize = 10;
+            _pointList = new List<Point>();
+
+            if (GameControllerParameters.IsNewGame)
+            {
+                Init(canvasHeight, canvasWidth);
+            }
+            else
+            {
+                ReadPreviousState(canvasWidth, canvasHeight);
+            }
         }
 
-        public void Init(double canvasHeight, double canvasWidth, int gameWidth, int gameHeight, bool isClassicView)
+        public void Init(double canvasHeight, double canvasWidth)
         {
-            _isClassisView = isClassicView;
-            GameWidth = gameHeight;
-            GameHeight = gameWidth;
-            EllipseSize = 10;
-            NumberOfRows = (int)canvasHeight / GameHeight;
-            NumberOfColums = (int)canvasWidth / GameWidth;
-            _gameState = new GameState();
-            _pointList = new List<Point>();
-            _prevGameStates = new List<GameState>();
-            _ai = new AI(GameHeight, GameWidth);
-            AITurn += _ai.GameController_AITurn;
-            _ai.LineChosen += AI_LineChosen;
+            _gameType = GameControllerParameters.GameType;
+            _gameMode = GameControllerParameters.GameMode;
+            _gridSize = GameControllerParameters.GridSize;
+            _gameState = new GameState()
+            {
+                GameType = _gameType,
+                GameMode = _gameMode,
+                GridSize = _gridSize,
+                Player1 = GameControllerParameters.Player1,
+                Player2 = GameControllerParameters.Player2
+            };
+            GameWidth = (int)canvasWidth / GameControllerParameters.GridSize;
+            GameHeight = GameWidth;
+            NumberOfRows = GameControllerParameters.GridSize;
+            NumberOfColums = NumberOfRows;
+
+            CreateAi();
 
             CreateEllipsePositionList();
+            CreateLineList(Brushes.White.ToString());
+        }
+
+        private void CreateAi()
+        {
+            if (_gameMode == GameMode.SINGLE)
+            {
+                _ai = new AI(GameHeight, GameWidth);
+                AITurn += _ai.GameController_AITurn;
+                _ai.LineChosen += AI_LineChosen;
+
+            }
         }
 
         private void Restart()
         {
             _gameState = new GameState();
-            if (!_prevGameStates[^1].IsEnded)
+            if (!DataProvider.GameStates[^1].IsEnded)
             {
-                _prevGameStates.RemoveAt(_prevGameStates.Count - 1);
-                DataProvider.WriteJson(_prevGameStates);
+                DataProvider.RemoveLastElement();
+                DataProvider.CommitChanges();
             }
             CreateLineList(Brushes.White.ToString());
             OnRestartDone();
@@ -106,27 +136,25 @@ namespace DotsAndBoxes.Classes
             RestartDone?.Invoke(this, EventArgs.Empty);
         }
 
-        private bool ReadPreviousState()
+        private void ReadPreviousState(double canvasHeight, double canvasWidth)
         {
-            _prevGameStates = DataProvider.ReadJson();
-            if (_prevGameStates != null)
-            {
-                GameState gameState = _prevGameStates[^1];
-                if (gameState.IsEnded)
-                {
-                    CreateLineList(Brushes.White.ToString());
-                    return false;
-                }
-                _gameState = gameState;
-                TimeElapsed = gameState.Length;
-                return true;
-            }
-            else
-            {
-                _prevGameStates = new List<GameState>();
-                CreateLineList(Brushes.White.ToString());
-                return false;
-            }
+            GameState gameState = DataProvider.GameStates[^1];
+            _gameState = gameState;
+            TimeElapsed = gameState.Length;
+            _gameType = _gameState.GameType;
+            _gameMode = _gameState.GameMode;
+            _gridSize = _gameState.GridSize;
+            GameWidth = (int)canvasWidth / _gridSize;
+            GameHeight = GameWidth;
+            EllipseSize = 10;
+            NumberOfRows = _gridSize;
+            NumberOfColums = NumberOfRows;
+
+            CreateAi();
+
+            CreateEllipsePositionList();
+
+            RestorePlacedRectangles();
         }
 
         private void AI_LineChosen(object sender, CustomEventArgs<LineStructure> e)
@@ -150,7 +178,7 @@ namespace DotsAndBoxes.Classes
 
         public void CreateEllipsePositionList()
         {
-            if (_isClassisView)
+            if (_gameType == GameType.CLASSIC)
             {
                 CreateEllipsePositionListForClassicView();
             }
@@ -200,7 +228,7 @@ namespace DotsAndBoxes.Classes
 
         public void CreateLineList(string brush)
         {
-            if (_isClassisView)
+            if (_gameType == GameType.CLASSIC)
             {
                 CreateClassicGrid(brush);
             }
@@ -314,11 +342,7 @@ namespace DotsAndBoxes.Classes
 
         public void Window_RestoreState(object sender, EventArgs e)
         {
-            if (ReadPreviousState())
-            {
-                //RestorePreferencesOfLines();
-                RestorePlacedRectangles();
-            }
+            //ReadPreviousState();
         }
 
         public void Window_SaveGame(object sender, EventArgs e)
@@ -357,14 +381,10 @@ namespace DotsAndBoxes.Classes
                 OnScoreChanged();
                 IsGameEnded();
             }
-            //else
-            //{
-            //    TurnId = 1 - TurnId;
-            //}
 
             TurnId = 1 - TurnId;
 
-            if (TurnId == 1)
+            if (_ai != null && TurnId == 1)
             {
                 OnAiTurn();
             }
@@ -426,7 +446,7 @@ namespace DotsAndBoxes.Classes
 
         private void OnRectangleEnclosed(RectangleStructure rectangle)
         {
-            RectangleEnclosed?.Invoke(this, new CustomEventArgs<RectangleStructure>(rectangle));
+            RectangleEnclosed?.Invoke(this, new CustomEventArgs<RectangleStructure>(rectangle)); //FIXME not invoked
         }
 
         private void IsGameEnded()
@@ -445,8 +465,9 @@ namespace DotsAndBoxes.Classes
         {
             _gameState.IsEnded = isEnded;
             _gameState.Length = TimeElapsed;
-            _prevGameStates.Add(_gameState);
-            DataProvider.WriteJson(_prevGameStates);
+
+            DataProvider.AddElement(_gameState);
+            DataProvider.CommitChanges();
         }
 
         private void OnGameEnded()

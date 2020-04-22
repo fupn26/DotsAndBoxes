@@ -1,5 +1,6 @@
 ﻿using DotsAndBoxes.Classes;
 using DotsAndBoxes.CustomEventArgs;
+using DotsAndBoxes.Enums;
 using DotsAndBoxes.Structures;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ using Point = System.Drawing.Point;
 
 namespace DotsAndBoxes.Views
 {
-    public partial class GameView : UserControl
+    public partial class GameView : Page
     {
         public event EventHandler InitScore;
 
@@ -29,41 +30,6 @@ namespace DotsAndBoxes.Views
         public event EventHandler SaveGame;
 
         public event EventHandler<CustomEventArgs<LineStructure>> LineClicked;
-
-        public double CanvasWidth
-        {
-            get { return (double)GetValue(CanvasWidthProperty); }
-            set { SetValue(CanvasWidthProperty, value); }
-        }
-
-        public static readonly DependencyProperty CanvasWidthProperty =
-            DependencyProperty.Register("CanvasWidth", typeof(double), typeof(GameView), new PropertyMetadata(0.0));
-
-
-        public double CanvasHeight
-        {
-            get { return (double)GetValue(CanvasHeightProperty); }
-            set { SetValue(CanvasHeightProperty, value); }
-        }
-
-        public static readonly DependencyProperty CanvasHeightProperty =
-            DependencyProperty.Register("CanvasHeight", typeof(double), typeof(GameView), new PropertyMetadata(0.0));
-
-
-
-
-        public bool IsClassicView
-        {
-            get { return (bool)GetValue(IsClassicViewProperty); }
-            set { SetValue(IsClassicViewProperty, value); }
-        }
-
-        public static readonly DependencyProperty IsClassicViewProperty =
-            DependencyProperty.Register("IsClassicView", typeof(bool), typeof(GameView), new PropertyMetadata(true));
-
-
-
-
 
         private GameController gameController;
 
@@ -77,25 +43,31 @@ namespace DotsAndBoxes.Views
         public GameView()
         {
             InitializeComponent();
+            LoadComponents();
         }
 
         public void LoadComponents()
         {
-            gameController = new GameController(CanvasHeight, CanvasWidth, 100, 100, IsClassicView);
+            gameController = new GameController(canvas.Height, canvas.Width);
             gameController.ScoreChanged += GameController_ScoreChanged;
             gameController.RectangleEnclosed += GameController_RectangleEnclosed;
             gameController.RestartDone += GameController_RestartDone;
             gameController.GameEnded += GameController_GameEnded;
             gameController.LineColored += GameController_LineColored;
             InitScore += gameController.Window_InitScore;
-            RestoreState += gameController.Window_RestoreState;
+            //RestoreState += gameController.Window_RestoreState;
             RestartGame += gameController.Windows_RestartGame;
             SaveGame += gameController.Window_SaveGame;
             LineClicked += gameController.Window_LineClicked;
-
             isCanvasEnabled = true;
-            OnRestoreState();
+
+            //if (NeedLoadGame)
+            //{
+            //    OnRestoreState();
+            //}
+
             InitGame();
+
             _timer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)
@@ -201,10 +173,10 @@ namespace DotsAndBoxes.Views
             InitGame();
         }
 
-        private void OnRestoreState()
-        {
-            RestoreState?.Invoke(this, EventArgs.Empty);
-        }
+        //private void OnRestoreState()
+        //{
+        //    RestoreState?.Invoke(this, EventArgs.Empty);
+        //}
 
         private void OnInitScore()
         {
@@ -393,6 +365,16 @@ namespace DotsAndBoxes.Views
         public void MainWindow_NeedToLoadComponents(object sender, EventArgs e)
         {
             LoadComponents();
+        }
+
+        private void HomeButton_Click(object sender, RoutedEventArgs e)
+        {
+            OnHomeButtonClicked();
+        }
+
+        private void OnHomeButtonClicked()
+        {
+            this.NavigationService.Navigate(new WelcomeView());
         }
     }
 }

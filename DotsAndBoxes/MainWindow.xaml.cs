@@ -18,7 +18,7 @@ namespace DotsAndBoxes
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new ClassicGameViewModel();
+            //DataContext = new ClassicGameViewModel();
             //DataContext = new DiamondGameViewModel();
             //DataContext = new WelcomeViewModel();
         }
@@ -33,6 +33,23 @@ namespace DotsAndBoxes
             var view = (GameView)sender;
             GameViewNeedToLoadComponent += view.MainWindow_NeedToLoadComponents;
             OnGameViewNeedToLoadComponents();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            //WelcomeView welcome = new WelcomeView();
+            //MainFrame.NavigationService.Navigate(welcome);
+        }
+
+        private void MainFrame_ContentRendered(object sender, EventArgs e)
+        {
+            MainFrame.NavigationUIVisibility = System.Windows.Navigation.NavigationUIVisibility.Hidden;
+        }
+
+        private void Window_Initialized(object sender, EventArgs e)
+        {
+            WelcomeView welcome = new WelcomeView();
+            MainFrame.NavigationService.Navigate(welcome);
         }
     }
 }

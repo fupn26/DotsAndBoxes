@@ -1,4 +1,5 @@
-﻿using DotsAndBoxes.Structures;
+﻿using DotsAndBoxes.Enums;
+using DotsAndBoxes.Structures;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Media;
@@ -9,12 +10,16 @@ namespace DotsAndBoxes.Classes
     //[JsonConverter(typeof(GameStateConverter))]
     public class GameState
     {
-        public bool IsEnded { get; set; }
-        public int Length { get; set; }
+        public GameType GameType { get; set; }
+        public GameMode GameMode { get; set; }
+        public int GridSize { get; set; }
+
         public string Player1 { get; set; }
         public string Player2 { get; set; }
         public int TurnID { get; set; }
         public int[] Scores { get; set; }
+        public bool IsEnded { get; set; }
+        public int Length { get; set; }
 
         public List<RectangleStructure> PlacedRectangles { get; set; }
         public List<LineStructure> LineList { get; set; }

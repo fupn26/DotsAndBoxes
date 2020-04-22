@@ -7,8 +7,8 @@
         xmlns:viewmodels="clr-namespace:DotsAndBoxes.ViewModels"
         xmlns:views="clr-namespace:DotsAndBoxes.Views"
         mc:Ignorable="d"
-        Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="WhiteSmoke" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
-    <Window.Resources>
+        Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="WhiteSmoke" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Initialized="Window_Initialized">
+<!--    <Window.Resources>
         <DataTemplate x:Name="classicGameView" DataType="{x:Type viewmodels:ClassicGameViewModel}">
             <views:GameView CanvasHeight="500" CanvasWidth="500" DataContext="{Binding}" Loaded="GameView_Loaded"/>
         </DataTemplate>
@@ -16,10 +16,11 @@
             <views:WelcomeView DataContext="{Binding}"/>
         </DataTemplate>
         <DataTemplate x:Name="DiamondGameView" DataType="{x:Type viewmodels:DiamondGameViewModel}">
-            <views:GameView CanvasHeight="490" CanvasWidth="490" IsClassicView="False" DataContext="{Binding}" Loaded="GameView_Loaded"/>
+            <views:GameView CanvasHeight="490" CanvasWidth="490" GameType="False" DataContext="{Binding}" Loaded="GameView_Loaded"/>
         </DataTemplate>
-    </Window.Resources>
+    </Window.Resources> -->
     <Grid>
-        <ContentControl Content="{Binding}"/>
+        <Frame x:Name="MainFrame" ContentRendered="MainFrame_ContentRendered"></Frame>
+        <!--<ContentControl Content="{Binding}"/>-->
     </Grid>
 </Window>

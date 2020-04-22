@@ -1,4 +1,6 @@
 ﻿using DotsAndBoxes.Classes;
+using DotsAndBoxes.Enums;
+using DotsAndBoxes.Structures;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,11 +19,62 @@ namespace DotsAndBoxes.Views
     /// <summary>
     /// Interaction logic for WelcomeView.xaml
     /// </summary>
-    public partial class WelcomeView : UserControl
+    public partial class WelcomeView : Page
     {
         public WelcomeView()
         {
             InitializeComponent();
+
+            if (CanLoadGameState())
+            {
+                Load.Visibility = Visibility.Visible;
+            }
         }
+
+        private bool CanLoadGameState()
+        {
+            return !DataProvider.GameStates[^1].IsEnded;
+        }
+
+        private void New_Click(object sender, RoutedEventArgs e)
+        {
+            if (CanLoadGameState())
+            {
+                DataProvider.RemoveLastElement();
+                DataProvider.CommitChanges();
+            }
+
+            GameControllerParameters.IsNewGame = true;
+
+            this.NavigationService.Navigate(new GameTypeChooserView());
+        }
+
+        private void Game_Loaded(object sender, RoutedEventArgs e)
+        {
+            if(sender is GameView game)
+            {
+                game.LoadComponents();
+            }
+        }
+        private void Load_Click(object sender, RoutedEventArgs e)
+        {
+            GameType lastGameType = DataProvider.GameStates[^1].GameType;
+            GameControllerParameters.IsNewGame = false;
+
+            NavigationService.Navigate(CreateGameView(lastGameType));
+        }
+
+        private GameView CreateGameView(GameType gameType)
+        {
+            GameView gameView = new GameView();
+
+            return gameView;
+        }
+
+        private void Quit_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+
     }
 }
