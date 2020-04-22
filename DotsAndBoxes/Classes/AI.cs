@@ -15,7 +15,7 @@ namespace DotsAndBoxes.Classes
         public LineStructure ChoosedLine { get; private set; }
         private readonly Random _random;
 
-        public event EventHandler<LineEventArgs> LineChosen;
+        public event EventHandler<CustomEventArgs<LineStructure>> LineChosen;
 
         public AI(int gameHeight, int gameWidth)
         {
@@ -24,16 +24,16 @@ namespace DotsAndBoxes.Classes
             _random = new Random();
         }
 
-        public void GameController_AITurn(object sender, ListEventArgs<LineStructure> e)
+        public void GameController_AITurn(object sender, CustomEventArgs<List<LineStructure>> e)
         {
-            LineList = e.RefList;
+            LineList = e.Content;
             ChooseLine();
             OnLineChosen();
         }
 
         private void OnLineChosen()
         {
-            LineChosen?.Invoke(this, new LineEventArgs(ChoosedLine));
+            LineChosen?.Invoke(this, new CustomEventArgs<LineStructure>(ChoosedLine));
         }
 
         public void ChooseLine()

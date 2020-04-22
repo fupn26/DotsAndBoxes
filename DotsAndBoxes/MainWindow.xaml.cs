@@ -13,11 +13,6 @@ namespace DotsAndBoxes
 {
     public partial class MainWindow : Window
     {
-        //private GameController gameController;
-
-        //public event EventHandler InitScore;
-
-        //public event EventHandler RestoreState;
         public event EventHandler GameViewNeedToLoadComponent;
 
         public MainWindow()

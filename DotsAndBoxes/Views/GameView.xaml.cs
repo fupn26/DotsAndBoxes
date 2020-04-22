@@ -28,7 +28,7 @@ namespace DotsAndBoxes.Views
 
         public event EventHandler SaveGame;
 
-        public event EventHandler<LineEventArgs> LineClicked;
+        public event EventHandler<CustomEventArgs<LineStructure>> LineClicked;
 
         public double CanvasWidth
         {
@@ -109,15 +109,15 @@ namespace DotsAndBoxes.Views
             return line.X1 == lineStructure.X1 && line.X2 == lineStructure.X2 && line.Y1 == lineStructure.Y1 && line.Y2 == lineStructure.Y2; 
         }
 
-        private void GameController_LineColored(object sender, LineEventArgs e)
+        private void GameController_LineColored(object sender, CustomEventArgs<LineStructure> e)
         {
             foreach(UIElement element in canvas.Children)
             {
                 if (element is Line line)
                 {
-                    if (CompareLineToLineStruct(line, e.Line))
+                    if (CompareLineToLineStruct(line, e.Content))
                     {
-                        ColorLine(line, e.Line.StrokeColor);
+                        ColorLine(line, e.Content.StrokeColor);
                     }
                 }
             }
@@ -175,9 +175,9 @@ namespace DotsAndBoxes.Views
             gameController.TimeElapsed += 1;
         }
 
-        private void GameController_RectangleEnclosed(object sender, RectangleEventArgs e)
+        private void GameController_RectangleEnclosed(object sender, CustomEventArgs<RectangleStructure> e)
         {
-            DrawRectangle(e.rectangleStructure);
+            DrawRectangle(e.Content);
         }
 
         private void GameController_ScoreChanged(object sender, EventArgs e)
@@ -344,7 +344,7 @@ namespace DotsAndBoxes.Views
 
         private void OnLineClicked()
         {
-            LineClicked?.Invoke(this, new LineEventArgs(ConvertLineToLineStructure(_lastLine)));
+            LineClicked?.Invoke(this, new CustomEventArgs<LineStructure>(ConvertLineToLineStructure(_lastLine)));
         }
 
         private LineStructure ConvertLineToLineStructure(Line line)

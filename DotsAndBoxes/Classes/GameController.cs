@@ -40,11 +40,11 @@ namespace DotsAndBoxes.Classes
         public int TimeElapsed { get; set; }
 
         public event EventHandler ScoreChanged;
-        public event EventHandler<RectangleEventArgs> RectangleEnclosed;
+        public event EventHandler<CustomEventArgs<RectangleStructure>> RectangleEnclosed;
         public event EventHandler RestartDone;
-        public event EventHandler<ListEventArgs<LineStructure>> AITurn;
+        public event EventHandler<CustomEventArgs<List<LineStructure>>> AITurn;
         public event EventHandler GameEnded;
-        public event EventHandler<LineEventArgs> LineColored; 
+        public event EventHandler<CustomEventArgs<LineStructure>> LineColored; 
 
         private GameState _gameState;
         private AI _ai;
@@ -129,11 +129,11 @@ namespace DotsAndBoxes.Classes
             }
         }
 
-        private void AI_LineChosen(object sender, LineEventArgs e)
+        private void AI_LineChosen(object sender, CustomEventArgs<LineStructure> e)
         {
             foreach (LineStructure line in _gameState.LineList)
             {
-                if (AreEqualLines(line, e.Line))
+                if (AreEqualLines(line, e.Content))
                 {
                     ChangeTurn(line);
                 }
@@ -326,11 +326,11 @@ namespace DotsAndBoxes.Classes
             WriteGameState(false);
         }
 
-        public void Window_LineClicked(object seder, LineEventArgs e)
+        public void Window_LineClicked(object seder, CustomEventArgs<LineStructure> e)
         {
             foreach(LineStructure line in _gameState.LineList)
             {
-                if (AreEqualLines(line, e.Line))
+                if (AreEqualLines(line, e.Content))
                 {
                     ChangeTurn(line);
                     break;
@@ -373,7 +373,7 @@ namespace DotsAndBoxes.Classes
 
         private void OnAiTurn()
         {
-            AITurn?.Invoke(this, new ListEventArgs<LineStructure>(_gameState.LineList));
+            AITurn?.Invoke(this, new CustomEventArgs<List<LineStructure>>(_gameState.LineList));
         }
 
         private void ColorChosenLine(LineStructure line)
@@ -392,7 +392,7 @@ namespace DotsAndBoxes.Classes
 
         private void OnLineColored(LineStructure line)
         {
-            LineColored?.Invoke(this, new LineEventArgs(line));
+            LineColored?.Invoke(this, new CustomEventArgs<LineStructure>(line));
         }
 
         private void CreateNewRectangleStructure(Point point)
@@ -426,7 +426,7 @@ namespace DotsAndBoxes.Classes
 
         private void OnRectangleEnclosed(RectangleStructure rectangle)
         {
-            RectangleEnclosed?.Invoke(this, new RectangleEventArgs(rectangle));
+            RectangleEnclosed?.Invoke(this, new CustomEventArgs<RectangleStructure>(rectangle));
         }
 
         private void IsGameEnded()
