@@ -8,9 +8,46 @@
              mc:Ignorable="d" 
              Background="WhiteSmoke" Height="400" Width="600">
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Style="{StaticResource MaterialDesignHeadline3TextBlock}" Margin="0 0 0 60"> Dots and Boxes </TextBlock>
-        <Button x:Name="Load" Visibility="Collapsed" Style="{StaticResource MaterialDesignRaisedButton}" materialDesign:ButtonAssist.CornerRadius="10" Margin="0 0 0 10" Click="Load_Click">Load Game</Button>
-        <Button x:Name="New" Style="{StaticResource MaterialDesignRaisedButton}" materialDesign:ButtonAssist.CornerRadius="10" Margin="0 0 0 10" Click="New_Click">New Game</Button>
-        <Button x:Name="Quit" Style="{StaticResource MaterialDesignRaisedButton}" materialDesign:ButtonAssist.CornerRadius="10" Margin="0 0 0 0" Click="Quit_Click">Quit</Button>
+        <TextBlock Style="{StaticResource MaterialDesignHeadline3TextBlock}" 
+                   HorizontalAlignment="Center" 
+                   Margin="20"> 
+            Dots and Boxes 
+        </TextBlock>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button x:Name="Load"
+                    Visibility="Collapsed" 
+                    Style="{StaticResource MaterialDesignFlatButton}" 
+                    Width="150"
+                    Height="150"
+                    HorizontalAlignment="Left"
+                    Margin="0 0 0 10"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3" 
+                    ToolTip="Load Game"
+                    Click="Load_Click">
+                <materialDesign:PackIcon Kind="PlayPause" Width="100" Height="100" Foreground="Black" />
+            </Button>
+            <Button x:Name="New" 
+                    Style="{StaticResource MaterialDesignFlatButton}" materialDesign:ButtonAssist.CornerRadius="10"
+                    Width="150"
+                    Height="150"
+                    HorizontalAlignment="Center"
+                    Margin="0 0 0 0"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3" 
+                    ToolTip="New Game"
+                    Click="New_Click">
+                <materialDesign:PackIcon Kind="Play" Width="100" Height="100" Foreground="Black"/>
+            </Button>
+            <Button x:Name="Quit" 
+                    Style="{StaticResource MaterialDesignFlatButton}" 
+                    materialDesign:ButtonAssist.CornerRadius="10" 
+                    Margin="10 0 0 0"
+                    Width="150"
+                    Height="150"
+                    ToolTip="Quit"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    Click="Quit_Click">
+                <materialDesign:PackIcon Kind="ExitToApp" Width="100" Height="100" Foreground="Black"/>
+            </Button>
+        </StackPanel>
     </StackPanel>
 </Page>

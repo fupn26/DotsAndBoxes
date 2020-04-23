@@ -4,23 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DotsAndBoxes"
-        xmlns:viewmodels="clr-namespace:DotsAndBoxes.ViewModels"
         xmlns:views="clr-namespace:DotsAndBoxes.Views"
         mc:Ignorable="d"
         Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="WhiteSmoke" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Initialized="Window_Initialized">
-<!--    <Window.Resources>
-        <DataTemplate x:Name="classicGameView" DataType="{x:Type viewmodels:ClassicGameViewModel}">
-            <views:GameView CanvasHeight="500" CanvasWidth="500" DataContext="{Binding}" Loaded="GameView_Loaded"/>
-        </DataTemplate>
-        <DataTemplate x:Name="WelcomeView" DataType="{x:Type viewmodels:WelcomeViewModel}">
-            <views:WelcomeView DataContext="{Binding}"/>
-        </DataTemplate>
-        <DataTemplate x:Name="DiamondGameView" DataType="{x:Type viewmodels:DiamondGameViewModel}">
-            <views:GameView CanvasHeight="490" CanvasWidth="490" GameType="False" DataContext="{Binding}" Loaded="GameView_Loaded"/>
-        </DataTemplate>
-    </Window.Resources> -->
     <Grid>
         <Frame x:Name="MainFrame" ContentRendered="MainFrame_ContentRendered" Navigated="MainFrame_Navigated"></Frame>
-        <!--<ContentControl Content="{Binding}"/>-->
     </Grid>
 </Window>

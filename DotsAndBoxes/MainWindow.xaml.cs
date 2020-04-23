@@ -1,6 +1,5 @@
 ﻿using DotsAndBoxes.Classes;
 using DotsAndBoxes.Structures;
-using DotsAndBoxes.ViewModels;
 using DotsAndBoxes.Views;
 using System;
 using System.Windows;
@@ -18,9 +17,6 @@ namespace DotsAndBoxes
         public MainWindow()
         {
             InitializeComponent();
-            //DataContext = new ClassicGameViewModel();
-            //DataContext = new DiamondGameViewModel();
-            //DataContext = new WelcomeViewModel();
         }
 
         private void OnGameViewNeedToLoadComponents()

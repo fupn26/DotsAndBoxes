@@ -4,6 +4,7 @@ using DotsAndBoxes.Enums;
 using DotsAndBoxes.Structures;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,8 +23,6 @@ namespace DotsAndBoxes.Views
     public partial class GameView : Page
     {
         public event EventHandler InitScore;
-
-        public event EventHandler RestoreState;
 
         public event EventHandler RestartGame;
 
@@ -54,19 +53,14 @@ namespace DotsAndBoxes.Views
             gameController.RestartDone += GameController_RestartDone;
             gameController.GameEnded += GameController_GameEnded;
             gameController.LineColored += GameController_LineColored;
+            gameController.PlayerNameSet += GameController_PlayerNameSet;
             InitScore += gameController.Window_InitScore;
-            //RestoreState += gameController.Window_RestoreState;
             RestartGame += gameController.Windows_RestartGame;
             SaveGame += gameController.Window_SaveGame;
             LineClicked += gameController.Window_LineClicked;
             gameController.Initialize(canvas.Height, canvas.Width);
 
             isCanvasEnabled = true;
-
-            //if (NeedLoadGame)
-            //{
-            //    OnRestoreState();
-            //}
 
             InitGame();
 
@@ -76,6 +70,17 @@ namespace DotsAndBoxes.Views
             };
             _timer.Tick += Timer_Tick;
             _timer.Start();
+        }
+
+        private void GameController_PlayerNameSet(object sender, CustomEventArgs<System.Collections.ObjectModel.ReadOnlyCollection<string>> e)
+        {
+            DisplayPlayersName(e.Content);
+        }
+
+        private void DisplayPlayersName(ReadOnlyCollection<string> names)
+        {
+            Player1Name.Content = names[0];
+            Player2Name.Content = names[1];
         }
 
         private bool CompareLineToLineStruct(Line line, LineStructure lineStructure)
@@ -109,7 +114,8 @@ namespace DotsAndBoxes.Views
 
         private void GameController_GameEnded(object sender, EventArgs e)
         {
-            OnRestartButtonClicked();
+            ResultsView resView = new ResultsView();
+            this.NavigationService.Navigate(resView);
         }
 
         private void GameController_RestartDone(object sender, EventArgs e)
@@ -243,7 +249,6 @@ namespace DotsAndBoxes.Views
 
                 canvas.Children.Add(line);
             }
-            return;
         }
 
         private void PauseGame()

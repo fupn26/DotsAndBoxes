@@ -5,11 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using System.IO;
-using System.Text.Json;
-using System.Windows.Input;
+using System.Threading;
 using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace DotsAndBoxes.Classes
 {
@@ -45,7 +42,8 @@ namespace DotsAndBoxes.Classes
         public event EventHandler RestartDone;
         public event EventHandler<CustomEventArgs<List<LineStructure>>> AITurn;
         public event EventHandler GameEnded;
-        public event EventHandler<CustomEventArgs<LineStructure>> LineColored; 
+        public event EventHandler<CustomEventArgs<LineStructure>> LineColored;
+        public event EventHandler<CustomEventArgs<ReadOnlyCollection<string>>> PlayerNameSet;
 
         private GameState _gameState;
         private AI _ai;
@@ -53,10 +51,10 @@ namespace DotsAndBoxes.Classes
         private GameType _gameType;
         private GameMode _gameMode;
         private int _gridSize;
+        private Random _random;
 
         private List<Point> _pointList;
 
-        private List<GameState> _prevGameStates;
         public ReadOnlyCollection<Point> PointList { 
             get
             {
@@ -73,33 +71,31 @@ namespace DotsAndBoxes.Classes
 
         public void Initialize(double canvasHeight, double canvasWidth)
         {
+            _random = new Random();
             EllipseSize = 10;
             _pointList = new List<Point>();
 
             if (GameControllerParameters.IsNewGame)
             {
-                StartNewGAme(canvasHeight, canvasWidth);
+                StartNewGame(canvasHeight, canvasWidth);
             }
             else
             {
                 ReadPreviousState(canvasWidth, canvasHeight);
             }
+            OnPlayerNameSet();
+
 
         }
 
-        private void StartNewGAme(double canvasHeight, double canvasWidth)
+        private void StartNewGame(double canvasHeight, double canvasWidth)
         {
             _gameType = GameControllerParameters.GameType;
             _gameMode = GameControllerParameters.GameMode;
             _gridSize = GameControllerParameters.GridSize;
-            _gameState = new GameState()
-            {
-                GameType = _gameType,
-                GameMode = _gameMode,
-                GridSize = _gridSize,
-                Player1 = GameControllerParameters.Player1,
-                Player2 = GameControllerParameters.Player2
-            };
+
+            CreateNewGameState();
+
             GameWidth = (int)canvasWidth / GameControllerParameters.GridSize;
             GameHeight = GameWidth;
             NumberOfRows = GameControllerParameters.GridSize;
@@ -109,6 +105,14 @@ namespace DotsAndBoxes.Classes
 
             CreateEllipsePositionList();
             CreateLineList(Brushes.White.ToString());
+
+            InitTurn();
+        }
+
+        private void OnPlayerNameSet()
+        {
+            List<string> names = new List<string> { _gameState.Player1, _gameState.Player2 };
+            PlayerNameSet?.Invoke(this, new CustomEventArgs<ReadOnlyCollection<string>>(names.AsReadOnly()));
         }
 
         private void CreateAi()
@@ -118,13 +122,12 @@ namespace DotsAndBoxes.Classes
                 _ai = new AI(GameHeight, GameWidth);
                 AITurn += _ai.GameController_AITurn;
                 _ai.LineChosen += AI_LineChosen;
-
             }
         }
 
         private void Restart()
         {
-            _gameState = new GameState();
+            CreateNewGameState();
             if (DataProvider.GameStates.Count != 0 &&
                 !DataProvider.GameStates[^1].IsEnded)
             {
@@ -133,6 +136,25 @@ namespace DotsAndBoxes.Classes
             }
             CreateLineList(Brushes.White.ToString());
             OnRestartDone();
+
+            InitTurn();
+        }
+
+        private void CreateNewGameState()
+        {
+            _gameState = new GameState()
+            {
+                GameType = _gameType,
+                GameMode = _gameMode,
+                GridSize = _gridSize,
+                TurnID = _random.Next(2),
+                Player1 = GameControllerParameters.Player1,
+                Player2 = GameControllerParameters.Player2
+            };
+            if (string.IsNullOrEmpty(_gameState.Player2))
+            {
+                _gameState.Player2 = "AI";
+            }
         }
 
         private void OnRestartDone()
@@ -159,6 +181,16 @@ namespace DotsAndBoxes.Classes
             CreateEllipsePositionList();
 
             RestorePlacedRectangles();
+
+            InitTurn();
+        }
+
+        private void InitTurn()
+        {
+            if (TurnId == 1 && _ai != null)
+            {
+                OnAiTurn();
+            }
         }
 
         private void AI_LineChosen(object sender, CustomEventArgs<LineStructure> e)
@@ -167,7 +199,8 @@ namespace DotsAndBoxes.Classes
             {
                 if (AreEqualLines(line, e.Content))
                 {
-                    ChangeTurn(line);
+                    ModifyGrid(line);
+                    break;
                 }
             }
         }
@@ -360,19 +393,21 @@ namespace DotsAndBoxes.Classes
             {
                 if (AreEqualLines(line, e.Content))
                 {
-                    ChangeTurn(line);
+                    ModifyGrid(line);
                     break;
                 }
             }
         }
 
-        private void ChangeTurn(LineStructure line)
+        private void ChangeTurn()
         {
-            if (IsLineColored(line))
-            {
-                return;
-            }
+            TurnId = 1 - TurnId;
+        }
+
+        private void ModifyGrid(LineStructure line)
+        {
             ColorChosenLine(line);
+
             Tuple<List<Point>, int> result = CheckState(line, _gameState.LineList);
             _gameState.Scores[TurnId] += result.Item2;
             if (result.Item2 != 0)
@@ -385,8 +420,10 @@ namespace DotsAndBoxes.Classes
                 OnScoreChanged();
                 IsGameEnded();
             }
-
-            TurnId = 1 - TurnId;
+            else
+            {
+                ChangeTurn();
+            }
 
             if (_ai != null && TurnId == 1)
             {

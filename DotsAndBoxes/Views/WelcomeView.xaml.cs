@@ -51,7 +51,7 @@ namespace DotsAndBoxes.Views
 
             GameControllerParameters.IsNewGame = true;
 
-            this.NavigationService.Navigate(new GameTypeChooserView());
+            this.NavigationService.Navigate(new GameModeChooserView());
         }
 
         private void Game_Loaded(object sender, RoutedEventArgs e)

@@ -17,9 +17,9 @@ namespace DotsAndBoxes.Views
     /// <summary>
     /// Interaction logic for GameTypeChooserView.xaml
     /// </summary>
-    public partial class GameTypeChooserView : Page
+    public partial class GameModeChooserView : Page
     {
-        public GameTypeChooserView()
+        public GameModeChooserView()
         {
             InitializeComponent();
         }

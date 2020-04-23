@@ -14,7 +14,7 @@
         </TextBlock>
         <StackPanel Orientation="Horizontal">
             <materialDesign:Card
-                    Width="200" Margin="20">
+                    Width="200" Margin="0 20 10 20">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition
@@ -64,7 +64,7 @@
                 </Grid>
             </materialDesign:Card>
             <materialDesign:Card
-                    Width="200" Margin="20">
+                    Width="200" Margin="10 20 0 20">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition

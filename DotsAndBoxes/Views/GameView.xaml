@@ -17,15 +17,23 @@
             </materialDesign:Card>
         </StackPanel>
         <StackPanel Margin="10 0 10 0" Orientation="Horizontal">
-            <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
-                <TextBlock x:Name="ScorePlayer1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkBlue" Height="100" ></TextBlock>
-            </materialDesign:Card>
+            <StackPanel VerticalAlignment="Center">
+                <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
+                    <TextBlock x:Name="ScorePlayer1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkBlue" Height="100" ></TextBlock>
+                </materialDesign:Card>
+                <materialDesign:Chip Margin="10" x:Name="Player1Name"
+                    Icon="1" Width="100"/>
+            </StackPanel>
             <materialDesign:Card Margin="20" UniformCornerRadius="6">
                 <Canvas x:Name ="canvas" Background="White" Width="420" Height="420" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"></Canvas>
             </materialDesign:Card>
-            <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
-                <TextBlock x:Name="ScorePlayer2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkRed" Height="100" ></TextBlock>
-            </materialDesign:Card>
+            <StackPanel VerticalAlignment="Center">
+                <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
+                    <TextBlock x:Name="ScorePlayer2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkRed" Height="100" ></TextBlock>
+                </materialDesign:Card>
+                <materialDesign:Chip x:Name="Player2Name"
+                    Icon="2" Width="100" Margin="10"/>
+            </StackPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="0 0 0 20">
             <Button x:Name="RestartButton" Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Margin="10" Click="RestartButton_Click">
