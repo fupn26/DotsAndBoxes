@@ -125,7 +125,8 @@ namespace DotsAndBoxes.Classes
         private void Restart()
         {
             _gameState = new GameState();
-            if (!DataProvider.GameStates[^1].IsEnded)
+            if (DataProvider.GameStates.Count != 0 &&
+                !DataProvider.GameStates[^1].IsEnded)
             {
                 DataProvider.RemoveLastElement();
                 DataProvider.CommitChanges();

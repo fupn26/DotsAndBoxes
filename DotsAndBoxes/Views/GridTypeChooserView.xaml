@@ -24,6 +24,10 @@
                         <RowDefinition
                             Height="Auto" />
                     </Grid.RowDefinitions>
+                    <Image
+                        Source="/Resources/classic.png"
+                        Stretch="Uniform" IsEnabled="True">
+                    </Image>
                     <materialDesign:PopupBox
                         Grid.Row="0"
                         Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
@@ -70,6 +74,10 @@
                         <RowDefinition
                             Height="Auto" />
                     </Grid.RowDefinitions>
+                    <Image
+                        Source="/Resources/diamond.png"
+                        Stretch="Uniform" IsEnabled="True">
+                    </Image>
                     <materialDesign:PopupBox
                         Grid.Row="0"
                         Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"

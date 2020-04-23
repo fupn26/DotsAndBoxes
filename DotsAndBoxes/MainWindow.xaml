@@ -20,7 +20,7 @@
         </DataTemplate>
     </Window.Resources> -->
     <Grid>
-        <Frame x:Name="MainFrame" ContentRendered="MainFrame_ContentRendered"></Frame>
+        <Frame x:Name="MainFrame" ContentRendered="MainFrame_ContentRendered" Navigated="MainFrame_Navigated"></Frame>
         <!--<ContentControl Content="{Binding}"/>-->
     </Grid>
 </Window>

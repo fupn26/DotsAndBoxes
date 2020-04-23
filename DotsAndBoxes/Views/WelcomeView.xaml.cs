@@ -33,7 +33,12 @@ namespace DotsAndBoxes.Views
 
         private bool CanLoadGameState()
         {
-            return !DataProvider.GameStates[^1].IsEnded;
+            if (DataProvider.GameStates.Count != 0)
+            {
+                return !DataProvider.GameStates[^1].IsEnded;
+            }
+
+            else return false;
         }
 
         private void New_Click(object sender, RoutedEventArgs e)
