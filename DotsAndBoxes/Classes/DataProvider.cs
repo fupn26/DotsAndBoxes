@@ -7,25 +7,36 @@ namespace DotsAndBoxes.Classes
 {
     public static class DataProvider
     {
-        private readonly static string fileName = "saved_game.json";
+        private const string FileName = "saved_game.json";
         private static List<GameState> _gameStates;
 
-        public static ReadOnlyCollection<GameState> GameStates { 
-            get
-            {
-                return _gameStates.AsReadOnly();
-            } 
-        }
+        public static ReadOnlyCollection<GameState> GameStates => _gameStates.AsReadOnly();
 
         static DataProvider()
         {
             ReadJson();
         }
+
+        public static void AddElement(GameState gameState)
+        {
+            _gameStates.Add(gameState);
+        }
+
+        public static void CommitChanges()
+        {
+            WriteJson();
+        }
+
+        public static void RemoveLastElement()
+        {
+            _gameStates.RemoveAt(_gameStates.Count - 1);
+        }
+
         private static void ReadJson()
         {
-            if (File.Exists(fileName))
+            if (File.Exists(FileName))
             {
-                string jsonString = File.ReadAllText(fileName);
+                var jsonString = File.ReadAllText(FileName);
                 _gameStates = JsonSerializer.Deserialize<List<GameState>>(jsonString);
             }
             else
@@ -34,25 +45,11 @@ namespace DotsAndBoxes.Classes
             }
         }
 
-        public static void AddElement(GameState gameState)
-        {
-            _gameStates.Add(gameState);
-        }
-
-        public static void RemoveLastElement()
-        {
-            _gameStates.RemoveAt(_gameStates.Count - 1);
-        }
-
-        public static void CommitChanges()
-        {
-            WriteJson();
-        }
         private static void WriteJson()
         {
             var v = JsonSerializer.Serialize(_gameStates);
             var jsonString = v;
-            File.WriteAllText(fileName, jsonString);
+            File.WriteAllText(FileName, jsonString);
         }
     }
 }

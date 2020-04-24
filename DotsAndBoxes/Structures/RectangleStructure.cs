@@ -10,6 +10,5 @@ namespace DotsAndBoxes.Structures
         public string Fill { get; set; }
         public double RadiusX { get; set; }
         public double RadiusY { get; set; }
-
     }
 }

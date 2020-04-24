@@ -1,7 +1,4 @@
-﻿using DotsAndBoxes.Classes;
-using DotsAndBoxes.CustomEventArgs;
-using DotsAndBoxes.Structures;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -10,29 +7,24 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using Point = System.Drawing.Point;
+using DotsAndBoxes.Classes;
+using DotsAndBoxes.CustomEventArgs;
+using DotsAndBoxes.Structures;
+using MaterialDesignThemes.Wpf;
 
 namespace DotsAndBoxes.Views
 {
     public partial class GameView
     {
-        public event EventHandler InitScore;
-
-        public event EventHandler RestartGame;
-
-        public event EventHandler SaveGame;
-
-        public event EventHandler<CustomEventArgs<LineStructure>> LineClicked;
-
         private GameController _gameController;
 
         private bool _isCanvasEnabled;
 
-        private DispatcherTimer _timer;
-
         private Line _lastLine;
 
         private int _snackShownTime;
+
+        private DispatcherTimer _timer;
 
 
         public GameView()
@@ -41,7 +33,11 @@ namespace DotsAndBoxes.Views
             LoadComponents();
         }
 
-        public void LoadComponents()
+        public event EventHandler InitScore;
+
+        public event EventHandler<CustomEventArgs<LineStructure>> LineClicked;
+
+        private void LoadComponents()
         {
             _gameController = new GameController();
             _gameController.ScoreChanged += GameController_ScoreChanged;
@@ -68,9 +64,49 @@ namespace DotsAndBoxes.Views
             _timer.Start();
         }
 
-        private void GameController_PlayerNameSet(object sender, CustomEventArgs<ReadOnlyCollection<string>> e)
+        public event EventHandler RestartGame;
+
+        public event EventHandler SaveGame;
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            DisplayPlayersName(e.Content);
+            DialogHost.IsOpen = false;
+            _timer.Start();
+        }
+
+        private void CheckSaveGameSnack()
+        {
+            if (SaveGameSnack.IsActive == false) return;
+            if (_snackShownTime == 5) SaveGameSnack.IsActive = false;
+            ++_snackShownTime;
+        }
+
+        private void ColorLine(Line line, string brush)
+        {
+            line.Stroke = (Brush) new BrushConverter().ConvertFromString(brush);
+            line.Cursor = Cursors.Arrow;
+            line.MouseEnter -= Line_MouseEnter;
+            line.MouseLeave -= Line_MouseLeave;
+            line.MouseLeftButtonDown -= Line_MouseLeftButtonDown;
+        }
+
+        private bool CompareLineToLineStruct(Line line, LineStructure lineStructure)
+        {
+            return line.X1 == lineStructure.X1 && line.X2 == lineStructure.X2 && line.Y1 == lineStructure.Y1 &&
+                   line.Y2 == lineStructure.Y2;
+        }
+
+        private LineStructure ConvertLineToLineStructure(Line line)
+        {
+            var lineStructure = new LineStructure
+            {
+                X1 = (int) line.X1,
+                Y1 = (int) line.Y1,
+                X2 = (int) line.X2,
+                Y2 = (int) line.Y2
+            };
+
+            return lineStructure;
         }
 
         private void DisplayPlayersName(ReadOnlyCollection<string> names)
@@ -83,39 +119,111 @@ namespace DotsAndBoxes.Views
             Player2Name.Content = names[1];
         }
 
-        private bool CompareLineToLineStruct(Line line, LineStructure lineStructure)
+        private void DNoSaveButton_Click(object sender, RoutedEventArgs e)
         {
-            return line.X1 == lineStructure.X1 && line.X2 == lineStructure.X2 && line.Y1 == lineStructure.Y1 && line.Y2 == lineStructure.Y2; 
+            Application.Current.Shutdown();
         }
 
-        private void GameController_LineColored(object sender, CustomEventArgs<LineStructure> e)
+        private void DrawEllipses()
         {
-            foreach(UIElement element in Canvas.Children)
+            foreach (var point in _gameController.PointList)
             {
-                if (element is Line line)
+                var ellipse = new Ellipse
                 {
-                    if (CompareLineToLineStruct(line, e.Content))
-                    {
-                        ColorLine(line, e.Content.StrokeColor);
-                    }
-                }
+                    Width = _gameController.EllipseSize,
+                    Height = _gameController.EllipseSize,
+                    Fill = Brushes.Black
+                };
+
+                Canvas.SetLeft(ellipse, point.X - _gameController.EllipseSize / 2);
+                Canvas.SetTop(ellipse, point.Y - _gameController.EllipseSize / 2);
+                Canvas.Children.Add(ellipse);
             }
-            
         }
 
-        private void ColorLine(Line line, string brush)
+        private void DrawLines()
         {
-            line.Stroke = (Brush)new BrushConverter().ConvertFromString(brush);
-            line.Cursor = Cursors.Arrow;
-            line.MouseEnter -= Line_MouseEnter;
-            line.MouseLeave -= Line_MouseLeave;
-            line.MouseLeftButtonDown -= Line_MouseLeftButtonDown;
+            foreach (var lineStructure in _gameController.LineList)
+            {
+                var line = new Line
+                {
+                    X1 = lineStructure.X1,
+                    Y1 = lineStructure.Y1,
+                    X2 = lineStructure.X2,
+                    Y2 = lineStructure.Y2,
+                    Stroke = (Brush) new BrushConverter().ConvertFromString(lineStructure.StrokeColor),
+                    StrokeThickness = 8
+                };
+                if (line.Stroke?.ToString() == Brushes.White.ToString()) line.Cursor = Cursors.Hand;
+                line.MouseEnter += Line_MouseEnter;
+                line.MouseLeave += Line_MouseLeave;
+                line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
+
+                Canvas.Children.Add(line);
+            }
+
+            Canvas.UpdateLayout();
+        }
+
+        private void DrawRectangles(List<RectangleStructure> rectangles)
+        {
+            foreach (var rectangle in rectangles)
+            {
+                var rect = new Rectangle
+                {
+                    Width = rectangle.Width,
+                    Height = rectangle.Height,
+                    Fill = (Brush) new BrushConverter().ConvertFromString(rectangle.Fill),
+                    RadiusX = rectangle.RadiusX,
+                    RadiusY = rectangle.RadiusY
+                };
+                Canvas.SetTop(rect, rectangle.RefPoint.Y + (_gameController.GameHeight - rect.Height) / 2);
+                Canvas.SetLeft(rect, rectangle.RefPoint.X + (_gameController.GameWidth - rect.Width) / 2);
+                Canvas.Children.Add(rect);
+            }
+        }
+
+        private void DSaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            OnSaveGameState();
+            Application.Current.Shutdown();
+        }
+
+        private void OnExitButtonClicked()
+        {
+            DialogHost.IsOpen = true;
+            _timer.Stop();
+
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            OnExitButtonClicked();
         }
 
         private void GameController_GameEnded(object sender, EventArgs e)
         {
-            ResultsView resView = new ResultsView();
-            this.NavigationService?.Navigate(resView);
+            var resView = new ResultsView();
+            NavigationService?.Navigate(resView);
+        }
+
+        private void GameController_LineColored(object sender, CustomEventArgs<LineStructure> e)
+        {
+            foreach (UIElement element in Canvas.Children)
+                if (element is Line line)
+                    if (CompareLineToLineStruct(line, e.Content))
+                        ColorLine(line, e.Content.StrokeColor);
+        }
+
+        private void GameController_PlayerNameSet(object sender, CustomEventArgs<ReadOnlyCollection<string>> e)
+        {
+            DisplayPlayersName(e.Content);
+        }
+
+        private void GameController_RectangleEnclosed(object sender,
+            CustomEventArgs<List<RectangleStructure>> e)
+        {
+            DrawRectangles(e.Content);
         }
 
         private void GameController_RestartDone(object sender, EventArgs e)
@@ -123,42 +231,15 @@ namespace DotsAndBoxes.Views
             Restart();
         }
 
-        private void UpdateTimerText()
-        {
-            TimeSpan time = TimeSpan.FromSeconds(_gameController.TimeElapsed);
-            Timer.Text = time.ToString("mm' : 'ss");
-        }
-
-        private void CheckSaveGameSnack()
-        {
-            if (SaveGameSnack.IsActive == false)
-            {
-                return;
-            }
-            if (_snackShownTime == 5)
-            {
-                SaveGameSnack.IsActive = false;
-            }
-            ++_snackShownTime;
-        }
-
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            UpdateTimerText();
-            CheckSaveGameSnack();
-            _gameController.TimeElapsed += 1;
-        }
-
-        private void GameController_RectangleEnclosed(object sender, 
-            CustomEventArgs<List<RectangleStructure>> e)
-        {
-            DrawRectangles(e.Content);
-        }
-
         private void GameController_ScoreChanged(object sender, EventArgs e)
         {
             ScorePlayer1.Text = _gameController.Scores[0].ToString();
             ScorePlayer2.Text = _gameController.Scores[1].ToString();
+        }
+
+        private void HomeButton_Click(object sender, RoutedEventArgs e)
+        {
+            OnHomeButtonClicked();
         }
 
         private void InitGame()
@@ -169,141 +250,19 @@ namespace DotsAndBoxes.Views
             DrawEllipses();
         }
 
-        private void Restart()
+
+        private void Line_MouseEnter(object sender, MouseEventArgs e)
         {
-            Canvas.Children.Clear();
-            _gameController.TimeElapsed = 0;
-            InitGame();
+            if (sender is Line line)
+                if (line.Stroke.ToString() == Brushes.White.ToString())
+                    line.Stroke = Brushes.Black;
         }
 
-        private void OnInitScore()
+        private void Line_MouseLeave(object sender, MouseEventArgs e)
         {
-            InitScore?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void DrawEllipses()
-        {
-            foreach (Point point in _gameController.PointList)
-            {
-                Ellipse ellipse = new Ellipse
-                {
-                    Width = _gameController.EllipseSize,
-                    Height = _gameController.EllipseSize,
-                    Fill = Brushes.Black
-                };
-
-                Canvas.SetLeft(ellipse, point.X - _gameController.EllipseSize / 2);
-                Canvas.SetTop(ellipse, point.Y - _gameController.EllipseSize / 2);
-                Canvas.Children.Add(ellipse);
-
-            }
-
-        }
-
-        private void DrawRectangles(List<RectangleStructure> rectangles)
-        {
-            foreach(RectangleStructure rectangle in rectangles)
-            {
-                Rectangle rect = new Rectangle
-                {
-                    Width = rectangle.Width,
-                    Height = rectangle.Height,
-                    Fill = (Brush)new BrushConverter().ConvertFromString(rectangle.Fill),
-                    RadiusX = rectangle.RadiusX,
-                    RadiusY = rectangle.RadiusY
-                };
-                Canvas.SetTop(rect, rectangle.RefPoint.Y + (_gameController.GameHeight - rect.Height) / 2);
-                Canvas.SetLeft(rect, rectangle.RefPoint.X + (_gameController.GameWidth - rect.Width) / 2);
-                Canvas.Children.Add(rect);
-            }
-        }
-
-        private void DrawLines()
-        {
-            foreach (LineStructure lineStructure in _gameController.LineList)
-            {
-
-                Line line = new Line
-                {
-                    X1 = lineStructure.X1,
-                    Y1 = lineStructure.Y1,
-                    X2 = lineStructure.X2,
-                    Y2 = lineStructure.Y2,
-                    Stroke = (Brush)new BrushConverter().ConvertFromString(lineStructure.StrokeColor),
-                    StrokeThickness = 8,
-                };
-                if (line.Stroke?.ToString() == Brushes.White.ToString())
-                {
-                    line.Cursor = Cursors.Hand;
-                }
-                line.MouseEnter += Line_MouseEnter;
-                line.MouseLeave += Line_MouseLeave;
-                line.MouseLeftButtonDown += Line_MouseLeftButtonDown;
-
-                Canvas.Children.Add(line);
-            }
-        }
-
-        private void PauseGame()
-        {
-            if (_isCanvasEnabled)
-            {
-                Canvas.IsEnabled = false;
-                PauseButtonSign.Kind = MaterialDesignThemes.Wpf.PackIconKind.PlayArrow;
-                _timer.Stop();
-            }
-            else
-            {
-                Canvas.IsEnabled = true;
-                PauseButtonSign.Kind = MaterialDesignThemes.Wpf.PackIconKind.Pause;
-                _timer.Start();
-            }
-
-            _isCanvasEnabled = !_isCanvasEnabled;
-        }
-
-        private void OnRestartButtonClicked()
-        {
-            RestartGame?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void RestartButton_Click(object sender, RoutedEventArgs e)
-        {
-            OnRestartButtonClicked();
-        }
-
-        private void PauseButton_Click(object sender, RoutedEventArgs e)
-        {
-            PauseGame();
-        }
-
-        private void PopupBox_Opened(object sender, RoutedEventArgs e)
-        {
-            PopupBoxPanel.Visibility = Visibility.Visible;
-            if (_isCanvasEnabled)
-            {
-                PauseGame();
-            }
-        }
-
-        private void PopupBox_Closed(object sender, RoutedEventArgs e)
-        {
-            PopupBoxPanel.Visibility = Visibility.Collapsed;
-            if (!_isCanvasEnabled)
-            {
-                PauseGame();
-            }
-        }
-
-        private void ExitButton_Click(object sender, RoutedEventArgs e)
-        {
-            DialogHost.IsOpen = true;
-            _timer.Stop();
-        }
-
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            OnSaveGameState();
+            if (sender is Line line)
+                if (line.Stroke.ToString() == Brushes.Black.ToString())
+                    line.Stroke = Brushes.White;
         }
 
         private void Line_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -315,46 +274,24 @@ namespace DotsAndBoxes.Views
             }
         }
 
+        private void OnHomeButtonClicked()
+        {
+            NavigationService?.Navigate(new WelcomeView());
+        }
+
+        private void OnInitScore()
+        {
+            InitScore?.Invoke(this, EventArgs.Empty);
+        }
+
         private void OnLineClicked()
         {
             LineClicked?.Invoke(this, new CustomEventArgs<LineStructure>(ConvertLineToLineStructure(_lastLine)));
         }
 
-        private LineStructure ConvertLineToLineStructure(Line line)
+        private void OnRestartButtonClicked()
         {
-            var lineStructure = new LineStructure
-            {
-                X1 = (int)line.X1,
-                Y1 = (int)line.Y1,
-                X2 = (int)line.X2,
-                Y2 = (int)line.Y2
-            };
-
-            return lineStructure;
-        }
-
-        private void Line_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (sender is Line line)
-            {
-                if (line.Stroke.ToString() == Brushes.Black.ToString())
-                {
-                    line.Stroke = Brushes.White;
-                }
-            }
-        }
-
-
-        private void Line_MouseEnter(object sender, MouseEventArgs e)
-        {
-            if (sender is Line line)
-            {
-                if (line.Stroke.ToString() ==  Brushes.White.ToString())
-                {
-                    line.Stroke = Brushes.Black;
-
-                }
-            }
+            RestartGame?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnSaveGameState()
@@ -364,36 +301,74 @@ namespace DotsAndBoxes.Views
             SaveGame?.Invoke(this, EventArgs.Empty);
         }
 
-        public void MainWindow_NeedToLoadComponents(object sender, EventArgs e)
+        private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
-            LoadComponents();
+            PauseGame();
         }
 
-        private void HomeButton_Click(object sender, RoutedEventArgs e)
+        private void PauseGame()
         {
-            OnHomeButtonClicked();
+            if (_isCanvasEnabled)
+            {
+                Canvas.IsEnabled = false;
+                PauseButtonSign.Kind = PackIconKind.PlayArrow;
+                _timer.Stop();
+            }
+            else
+            {
+                Canvas.IsEnabled = true;
+                PauseButtonSign.Kind = PackIconKind.Pause;
+                _timer.Start();
+            }
+
+            _isCanvasEnabled = !_isCanvasEnabled;
         }
 
-        private void OnHomeButtonClicked()
+        private void PopupBox_Closed(object sender, RoutedEventArgs e)
         {
-            this.NavigationService?.Navigate(new WelcomeView());
+            PopupBoxPanel.Visibility = Visibility.Collapsed;
+            if (!_isCanvasEnabled) PauseGame();
         }
 
-        private void DSaveButton_Click(object sender, RoutedEventArgs e)
+        private void PopupBox_Opened(object sender, RoutedEventArgs e)
+        {
+            PopupBoxPanel.Visibility = Visibility.Visible;
+            if (_isCanvasEnabled) PauseGame();
+        }
+
+        private void Restart()
+        {
+            Canvas.Children.Clear();
+            _gameController.TimeElapsed = 0;
+            InitGame();
+        }
+
+        private void RestartButton_Click(object sender, RoutedEventArgs e)
+        {
+            OnRestartButtonClicked();
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             OnSaveGameState();
-            Application.Current.Shutdown();
         }
 
-        private void DNoSaveButton_Click(object sender, RoutedEventArgs e)
+        private void Timer_Tick(object sender, EventArgs e)
         {
-            Application.Current.Shutdown();
+            UpdateTimerText();
+            CheckSaveGameSnack();
+            _gameController.TimeElapsed += 1;
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        private void UpdateTimerText()
         {
-            DialogHost.IsOpen = false;
-            _timer.Start();
+            var time = TimeSpan.FromSeconds(_gameController.TimeElapsed);
+            Timer.Text = time.ToString("mm':'ss");
+        }
+
+        public void Window_Closing(object sender, EventArgs e)
+        {
+            OnExitButtonClicked();
         }
     }
 }

@@ -7,6 +7,7 @@ namespace DotsAndBoxes
 {
     public partial class MainWindow
     {
+        public event EventHandler WindowClosing;
         public MainWindow()
         {
             InitializeComponent();
@@ -41,7 +42,7 @@ namespace DotsAndBoxes
 
         private void MainFrame_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
-            if(MainFrame.Content is Page actualPage)
+            if (MainFrame.Content is Page actualPage)
             {
                 actualPage.Loaded += ActualPage_Loaded;
             }
@@ -50,6 +51,23 @@ namespace DotsAndBoxes
         private void ActualPage_Loaded(object sender, RoutedEventArgs e)
         {
             OnCenterWindow();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (MainFrame.Content is GameView actualPage)
+            {
+                e.Cancel = true;
+                WindowClosing += actualPage.Window_Closing;
+                OnWindowClosing();
+            }
+
+            
+        }
+
+        private void OnWindowClosing()
+        {
+            WindowClosing?.Invoke(this, EventArgs.Empty);
         }
     }
 }

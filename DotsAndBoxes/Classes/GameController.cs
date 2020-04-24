@@ -1,70 +1,63 @@
-﻿using DotsAndBoxes.CustomEventArgs;
-using DotsAndBoxes.Enums;
-using DotsAndBoxes.Structures;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Windows.Media;
+using DotsAndBoxes.CustomEventArgs;
+using DotsAndBoxes.Enums;
+using DotsAndBoxes.Structures;
 
 namespace DotsAndBoxes.Classes
 {
     public class GameController : StateChecker
     {
+        private Ai _ai;
+        private GameMode _gameMode;
+
+        private GameState _gameState;
+
+        private GameType _gameType;
+        private int _gridSize;
+
+        private List<Point> _pointList;
+        private Random _random;
         public int EllipseSize { get; private set; }
 
         public int TurnId
         {
-            get
-            {
-                return _gameState.TurnId;
-            }
-            private set
-            {
-                _gameState.TurnId = value;
-            }
+            get => _gameState.TurnId;
+            private set => _gameState.TurnId = value;
         }
 
-        public ReadOnlyCollection<int> Scores { 
-            get
-            {
-                return new ReadOnlyCollection<int>(_gameState.Scores);
-            }
-        }
+        public ReadOnlyCollection<int> Scores => new ReadOnlyCollection<int>(_gameState.Scores);
 
         public int NumberOfRows { get; private set; }
         public int NumberOfColums { get; private set; }
         public int TimeElapsed { get; set; }
 
-        public event EventHandler ScoreChanged;
-        public event EventHandler<CustomEventArgs<List<RectangleStructure>>> RectangleEnclosed;
-        public event EventHandler RestartDone;
+        public ReadOnlyCollection<Point> PointList => new ReadOnlyCollection<Point>(_pointList);
+
+        public ReadOnlyCollection<LineStructure> LineList => new ReadOnlyCollection<LineStructure>(_gameState.LineList);
+
         public event EventHandler<CustomEventArgs<List<LineStructure>>> AiTurn;
+
+        public void CreateEllipsePositionList()
+        {
+            if (_gameType == GameType.Classic)
+                CreateEllipsePositionListForClassicView();
+            else
+                CreateEllipsePositionListForDiamondView();
+        }
+
+        public void CreateLineList(string brush)
+        {
+            if (_gameType == GameType.Classic)
+                CreateClassicGrid(brush);
+            else
+                CreateDiamonGrid(brush);
+        }
+
         public event EventHandler GameEnded;
-        public event EventHandler<CustomEventArgs<LineStructure>> LineColored;
-        public event EventHandler<CustomEventArgs<ReadOnlyCollection<string>>> PlayerNameSet;
-
-        private GameState _gameState;
-        private Ai _ai;
-
-        private GameType _gameType;
-        private GameMode _gameMode;
-        private int _gridSize;
-        private Random _random;
-
-        private List<Point> _pointList;
-
-        public ReadOnlyCollection<Point> PointList { 
-            get
-            {
-                return new ReadOnlyCollection<Point>(_pointList);
-            } 
-        }
-        public ReadOnlyCollection<LineStructure> LineList { get
-            {
-                return new ReadOnlyCollection<LineStructure>(_gameState.LineList);
-            } 
-        }
 
         public void Initialize(double canvasHeight, double canvasWidth)
         {
@@ -73,43 +66,110 @@ namespace DotsAndBoxes.Classes
             _pointList = new List<Point>();
 
             if (GameControllerParameters.IsNewGame)
-            {
                 StartNewGame(canvasWidth);
-            }
             else
-            {
                 ReadPreviousState(canvasHeight);
-            }
             OnPlayerNameSet();
-
-
         }
 
-        private void StartNewGame(double canvasWidth)
+        public event EventHandler<CustomEventArgs<LineStructure>> LineColored;
+        public event EventHandler<CustomEventArgs<ReadOnlyCollection<string>>> PlayerNameSet;
+        public event EventHandler<CustomEventArgs<List<RectangleStructure>>> RectangleEnclosed;
+        public event EventHandler RestartDone;
+
+        public event EventHandler ScoreChanged;
+
+        public void Window_InitScore(object sender, EventArgs e)
         {
-            _gameType = GameControllerParameters.GameType;
-            _gameMode = GameControllerParameters.GameMode;
-            _gridSize = GameControllerParameters.GridSize;
-
-            CreateNewGameState();
-
-            GameWidth = (int)canvasWidth / GameControllerParameters.GridSize;
-            GameHeight = GameWidth;
-            NumberOfRows = GameControllerParameters.GridSize;
-            NumberOfColums = NumberOfRows;
-
-            CreateAi();
-
-            CreateEllipsePositionList();
-            CreateLineList(Brushes.White.ToString());
-
-            InitTurn();
+            OnScoreChanged();
         }
 
-        private void OnPlayerNameSet()
+        public void Window_LineClicked(object seder, CustomEventArgs<LineStructure> e)
         {
-            List<string> names = new List<string> { _gameState.Player1, _gameState.Player2 };
-            PlayerNameSet?.Invoke(this, new CustomEventArgs<ReadOnlyCollection<string>>(names.AsReadOnly()));
+            foreach (var line in _gameState.LineList)
+                if (AreEqualLines(line, e.Content))
+                {
+                    ModifyGrid(line);
+                    break;
+                }
+        }
+
+        public void Window_SaveGame(object sender, EventArgs e)
+        {
+            WriteGameState(false);
+        }
+
+        public void Windows_RestartGame(object sender, EventArgs e)
+        {
+            Restart();
+        }
+
+
+        private void AddHorizontalLine(int positionX, int positionY, string brush)
+        {
+            var x1 = positionX * GameWidth;
+            var y1 = positionY * GameHeight;
+            var x2 = x1 + GameWidth;
+            var y2 = y1;
+            var line = new LineStructure
+            {
+                X1 = x1,
+                Y1 = y1,
+                X2 = x2,
+                Y2 = y2,
+                StrokeColor = brush,
+                StrokeThickness = 8
+            };
+            _gameState.LineList.Add(line);
+        }
+
+        private void AddPoint(int positionX, int positionY)
+        {
+            var point = new Point(positionX * GameWidth, positionY * GameHeight);
+            _pointList.Add(point);
+        }
+
+        private void AddVerticalLine(int positionX, int positionY, string brush)
+        {
+            var x1 = positionX * GameWidth;
+            var y1 = positionY * GameHeight;
+            var x2 = x1;
+            var y2 = y1 + GameHeight;
+            var line = new LineStructure
+            {
+                X1 = x1,
+                Y1 = y1,
+                X2 = x2,
+                Y2 = y2,
+                StrokeColor = brush,
+                StrokeThickness = 8
+            };
+            _gameState.LineList.Add(line);
+        }
+
+        private void AI_LineChosen(object sender, CustomEventArgs<LineStructure> e)
+        {
+            foreach (var line in _gameState.LineList)
+                if (AreEqualLines(line, e.Content))
+                {
+                    ModifyGrid(line);
+                    break;
+                }
+        }
+
+        private void ChangeTurn()
+        {
+            TurnId = 1 - TurnId;
+        }
+
+        private void ColorChosenLine(LineStructure line)
+        {
+            if (TurnId == 0)
+                line.StrokeColor = Brushes.DarkBlue.ToString();
+            else
+                line.StrokeColor = Brushes.DarkRed.ToString();
+
+            OnLineColored(line);
         }
 
         private void CreateAi()
@@ -122,24 +182,59 @@ namespace DotsAndBoxes.Classes
             }
         }
 
-        private void Restart()
+        private void CreateClassicGrid(string brush)
         {
-            CreateNewGameState();
-            if (DataProvider.GameStates.Count != 0 &&
-                !DataProvider.GameStates[^1].IsEnded)
-            {
-                DataProvider.RemoveLastElement();
-                DataProvider.CommitChanges();
-            }
-            CreateLineList(Brushes.White.ToString());
-            OnRestartDone();
+            for (var i = 0; i <= NumberOfRows; ++i)
+            for (var j = 0; j < NumberOfColums; ++j)
+                AddHorizontalLine(j, i, brush);
 
-            InitTurn();
+            for (var i = 0; i < NumberOfRows; ++i)
+            for (var j = 0; j <= NumberOfColums; ++j)
+                AddVerticalLine(j, i, brush);
+        }
+
+        private void CreateDiamonGrid(string brush)
+        {
+            var offset = (NumberOfColums - 1) / 2;
+
+            for (var i = 0; i <= NumberOfRows / 2; ++i)
+            for (var j = offset - i; j < NumberOfColums - (offset - i); ++j)
+                AddHorizontalLine(j, i, brush);
+
+            for (var i = 0; i < NumberOfRows / 2; ++i)
+            for (var j = offset - i; j <= NumberOfColums - (offset - i); ++j)
+                AddVerticalLine(j, i, brush);
+
+            for (var i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
+            for (var j = i - offset - 1; j < NumberOfColums - (i - offset - 1); ++j)
+                AddHorizontalLine(j, i, brush);
+
+            for (var i = NumberOfRows / 2; i <= NumberOfRows; ++i)
+            for (var j = i - offset; j < NumberOfColums - (i - offset - 1); ++j)
+                AddVerticalLine(j, i, brush);
+        }
+
+        private void CreateEllipsePositionListForClassicView()
+        {
+            for (var i = 0; i <= NumberOfRows; ++i)
+            for (var j = 0; j <= NumberOfColums; ++j)
+                AddPoint(j, i);
+        }
+
+        private void CreateEllipsePositionListForDiamondView()
+        {
+            var offset = (NumberOfColums - 1) / 2;
+            for (var i = 0; i <= NumberOfRows / 2; ++i)
+            for (var j = offset - i; j <= NumberOfColums - (offset - i); ++j)
+                AddPoint(j, i);
+            for (var i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
+            for (var j = i - offset - 1; j <= NumberOfColums - (i - offset - 1); ++j)
+                AddPoint(j, i);
         }
 
         private void CreateNewGameState()
         {
-            _gameState = new GameState()
+            _gameState = new GameState
             {
                 GameType = _gameType,
                 GameMode = _gameMode,
@@ -148,10 +243,92 @@ namespace DotsAndBoxes.Classes
                 Player1 = GameControllerParameters.Player1,
                 Player2 = GameControllerParameters.Player2
             };
-            if (string.IsNullOrEmpty(_gameState.Player2))
+            if (string.IsNullOrEmpty(_gameState.Player2)) _gameState.Player2 = "AI";
+        }
+
+        private RectangleStructure CreateNewRectangleStructure(Point point)
+        {
+            var rectangle = new RectangleStructure
             {
-                _gameState.Player2 = "AI";
+                RefPoint = point,
+                Width = GameWidth * 0.85,
+                Height = GameHeight * 0.85,
+                Fill = Brushes.DarkBlue.ToString(),
+                RadiusX = 8,
+                RadiusY = 8
+            };
+            if (_gameState.TurnId == 0)
+                rectangle.Fill = Brushes.DarkBlue.ToString();
+            else
+                rectangle.Fill = Brushes.DarkRed.ToString();
+            _gameState.PlacedRectangles.Add(rectangle);
+            return rectangle;
+        }
+
+        private void InitTurn()
+        {
+            if (TurnId == 1 && _ai != null) OnAiTurn();
+        }
+
+        private void IsGameEnded()
+        {
+            foreach (var line in _gameState.LineList)
+                if (!IsLineColored(line))
+                {
+                    if (_ai != null && TurnId == 1) OnAiTurn();
+                    return;
+                }
+
+            OnGameEnded();
+        }
+
+        private void ModifyGrid(LineStructure line)
+        {
+            ColorChosenLine(line);
+
+            var result = CheckState(line, _gameState.LineList);
+            if (result.Item2 != 0)
+            {
+                _gameState.Scores[TurnId] += result.Item2;
+                var rects = new List<RectangleStructure>();
+                foreach (var point in result.Item1) rects.Add(CreateNewRectangleStructure(point));
+
+                OnRectangleEnclosed(rects);
+                OnScoreChanged();
             }
+            else
+            {
+                ChangeTurn();
+            }
+
+            IsGameEnded();
+        }
+
+        private void OnAiTurn()
+        {
+            AiTurn?.Invoke(this, new CustomEventArgs<List<LineStructure>>(_gameState.LineList));
+        }
+
+        private void OnGameEnded()
+        {
+            WriteGameState(true);
+            GameEnded?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnLineColored(LineStructure line)
+        {
+            LineColored?.Invoke(this, new CustomEventArgs<LineStructure>(line));
+        }
+
+        private void OnPlayerNameSet()
+        {
+            var names = new List<string> {_gameState.Player1, _gameState.Player2};
+            PlayerNameSet?.Invoke(this, new CustomEventArgs<ReadOnlyCollection<string>>(names.AsReadOnly()));
+        }
+
+        private void OnRectangleEnclosed(List<RectangleStructure> rectangle)
+        {
+            RectangleEnclosed?.Invoke(this, new CustomEventArgs<List<RectangleStructure>>(rectangle));
         }
 
         private void OnRestartDone()
@@ -159,15 +336,20 @@ namespace DotsAndBoxes.Classes
             RestartDone?.Invoke(this, EventArgs.Empty);
         }
 
+        private void OnScoreChanged()
+        {
+            ScoreChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         private void ReadPreviousState(double canvasWidth)
         {
-            GameState gameState = DataProvider.GameStates[^1];
+            var gameState = DataProvider.GameStates[^1];
             _gameState = gameState;
             TimeElapsed = gameState.Length;
             _gameType = _gameState.GameType;
             _gameMode = _gameState.GameMode;
             _gridSize = _gameState.GridSize;
-            GameWidth = (int)canvasWidth / _gridSize;
+            GameWidth = (int) canvasWidth / _gridSize;
             GameHeight = GameWidth;
             EllipseSize = 10;
             NumberOfRows = _gridSize;
@@ -182,24 +364,20 @@ namespace DotsAndBoxes.Classes
             InitTurn();
         }
 
-        private void InitTurn()
+        private void Restart()
         {
-            if (TurnId == 1 && _ai != null)
+            CreateNewGameState();
+            if (DataProvider.GameStates.Count != 0 &&
+                !DataProvider.GameStates[^1].IsEnded)
             {
-                OnAiTurn();
+                DataProvider.RemoveLastElement();
+                DataProvider.CommitChanges();
             }
-        }
 
-        private void AI_LineChosen(object sender, CustomEventArgs<LineStructure> e)
-        {
-            foreach (LineStructure line in _gameState.LineList)
-            {
-                if (AreEqualLines(line, e.Content))
-                {
-                    ModifyGrid(line);
-                    break;
-                }
-            }
+            CreateLineList(Brushes.White.ToString());
+            OnRestartDone();
+
+            InitTurn();
         }
 
         private void RestorePlacedRectangles()
@@ -207,318 +385,36 @@ namespace DotsAndBoxes.Classes
             OnRectangleEnclosed(_gameState.PlacedRectangles);
         }
 
-        public void CreateEllipsePositionList()
+        private void StartNewGame(double canvasWidth)
         {
-            if (_gameType == GameType.Classic)
-            {
-                CreateEllipsePositionListForClassicView();
-            }
-            else
-            {
-                CreateEllipsePositionListForDiamondView();
-            }
-        }
+            _gameType = GameControllerParameters.GameType;
+            _gameMode = GameControllerParameters.GameMode;
+            _gridSize = GameControllerParameters.GridSize;
 
-        private void CreateEllipsePositionListForDiamondView()
-        {
-            int offset = (NumberOfColums - 1) / 2;
-            for (int i = 0; i <= NumberOfRows / 2; ++i)
-            {
-                for (int j = offset - i; j <= NumberOfColums - (offset - i); ++j)
-                {
-                    AddPoint(j, i);
-                }
-            }
-            for (int i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
-            {
-                for (int j = i - offset - 1; j <= NumberOfColums - (i - offset - 1); ++j)
-                {
-                    AddPoint(j, i);
-                }
-            }
-        }
+            CreateNewGameState();
 
-        private void CreateEllipsePositionListForClassicView()
-        {
-            for (int i = 0; i <= NumberOfRows; ++i)
-            {
-                for (int j = 0; j <= NumberOfColums; ++j)
-                {
-                    AddPoint(j, i);
-                }
-            }
+            GameWidth = (int) canvasWidth / GameControllerParameters.GridSize;
+            GameHeight = GameWidth;
+            NumberOfRows = GameControllerParameters.GridSize;
+            NumberOfColums = NumberOfRows;
 
-        }
+            CreateAi();
 
-        private void AddPoint(int positionX, int positionY)
-        {
-            Point point = new Point(positionX * GameWidth, positionY * GameHeight);
-            _pointList.Add(point);
+            CreateEllipsePositionList();
+            CreateLineList(Brushes.White.ToString());
 
-        }
-
-        public void CreateLineList(string brush)
-        {
-            if (_gameType == GameType.Classic)
-            {
-                CreateClassicGrid(brush);
-            }
-            else
-            {
-                CreateDiamonGrid(brush);
-            }
-        }
-
-        private void CreateClassicGrid(string brush)
-        {
-            for (int i = 0; i <= NumberOfRows; ++i)
-            {
-                for (int j = 0; j < NumberOfColums; ++j)
-                {
-                    AddHorizontalLine(j, i, brush);
-                }
-            }
-
-            for (int i = 0; i < NumberOfRows; ++i)
-            {
-                for (int j = 0; j <= NumberOfColums; ++j)
-                {
-                    AddVerticalLine(j, i, brush);
-                }
-            }
-        }
-
-        private void CreateDiamonGrid(string brush)
-        {
-            int offset = (NumberOfColums - 1) / 2;
-            for (int i = 0; i <= NumberOfRows / 2; ++i)
-            {
-                for (int j = offset - i; j < NumberOfColums - (offset - i); ++j)
-                {
-                    AddHorizontalLine(j, i, brush);
-                }
-            }
-
-            for (int i = 0; i < NumberOfRows / 2; ++i)
-            {
-                for (int j = offset - i; j <= NumberOfColums - (offset - i); ++j)
-                {
-                    AddVerticalLine(j, i, brush);
-                }
-            }
-
-            for (int i = NumberOfRows / 2 + 1; i <= NumberOfRows; ++i)
-            {
-                for (int j = i - offset - 1; j < NumberOfColums - (i - offset - 1); ++j)
-                {
-                    AddHorizontalLine(j, i, brush);
-                }
-            }
-            for (int i = NumberOfRows / 2; i <= NumberOfRows; ++i)
-            {
-                for (int j = i - offset; j < NumberOfColums - (i - offset - 1); ++j)
-                {
-                    AddVerticalLine(j, i, brush);
-                }
-            }
-
-        }
-
-
-        private void AddHorizontalLine(int positionX, int positionY, string brush)
-        {
-            int x1 = positionX * GameWidth;
-            int y1 = positionY * GameHeight;
-            int x2 = x1 + GameWidth;
-            int y2 = y1;
-            LineStructure line = new LineStructure
-            {
-                X1 = x1,
-                Y1 = y1,
-                X2 = x2,
-                Y2 = y2,
-                StrokeColor = brush,
-                StrokeThickness = 8
-            };
-            _gameState.LineList.Add(line);
-        }
-
-        private void AddVerticalLine(int positionX, int positionY, string brush)
-        {
-            int x1 = positionX * GameWidth;
-            int y1 = positionY * GameHeight;
-            int x2 = x1;
-            int y2 = y1 + GameHeight;
-            LineStructure line = new LineStructure
-            {
-                X1 = x1,
-                Y1 = y1,
-                X2 = x2,
-                Y2 = y2,
-                StrokeColor = brush,
-                StrokeThickness = 8
-            };
-            _gameState.LineList.Add(line);
-        }
-
-        public void Window_InitScore(object sender, EventArgs e)
-        {
-            OnScoreChanged();
-        }
-
-        public void Windows_RestartGame(object sender, EventArgs e)
-        {
-            Restart();
-        }
-
-        public void Window_RestoreState(object sender, EventArgs e)
-        {
-            //ReadPreviousState();
-        }
-
-        public void Window_SaveGame(object sender, EventArgs e)
-        {
-            WriteGameState(false);
-        }
-
-        public void Window_LineClicked(object seder, CustomEventArgs<LineStructure> e)
-        {
-            foreach(LineStructure line in _gameState.LineList)
-            {
-                if (AreEqualLines(line, e.Content))
-                {
-                    ModifyGrid(line);
-                    break;
-                }
-            }
-        }
-
-        private void ChangeTurn()
-        {
-            TurnId = 1 - TurnId;
-        }
-
-        private void ModifyGrid(LineStructure line)
-        {
-            ColorChosenLine(line);
-
-            Tuple<List<Point>, int> result = CheckState(line, _gameState.LineList);
-            if (result.Item2 != 0)
-            {
-                _gameState.Scores[TurnId] += result.Item2;
-                List<RectangleStructure> rects = new List<RectangleStructure>();
-                foreach (Point point in result.Item1)
-                {
-                    rects.Add(CreateNewRectangleStructure(point));
-                }
-
-                OnRectangleEnclosed(rects);
-                OnScoreChanged();
-            }
-            else
-            {
-                ChangeTurn();
-            }
-
-            IsGameEnded();
-
-        }
-        public void Window_RectangleDrawn(object sender, EventArgs e)
-        {
-            IsGameEnded();
-        }
-
-        private void OnAiTurn()
-        {
-            AiTurn?.Invoke(this, new CustomEventArgs<List<LineStructure>>(_gameState.LineList));
-        }
-
-        private void ColorChosenLine(LineStructure line)
-        {
-            if (TurnId == 0)
-            {
-                line.StrokeColor = Brushes.DarkBlue.ToString();
-            }
-            else
-            {
-                line.StrokeColor = Brushes.DarkRed.ToString();
-            }
-
-            OnLineColored(line);
-        }
-
-        private void OnLineColored(LineStructure line)
-        {
-            LineColored?.Invoke(this, new CustomEventArgs<LineStructure>(line));
-        }
-
-        private RectangleStructure CreateNewRectangleStructure(Point point)
-        {
-            RectangleStructure rectangle = new RectangleStructure
-            {
-                RefPoint = point,
-                Width = GameWidth * 0.85,
-                Height = GameHeight * 0.85,
-                Fill = Brushes.DarkBlue.ToString(),
-                RadiusX = 8,
-                RadiusY = 8
-            };
-            if (_gameState.TurnId == 0)
-            {
-                rectangle.Fill = Brushes.DarkBlue.ToString();
-
-            }
-            else
-            {
-                rectangle.Fill = Brushes.DarkRed.ToString();
-            }
-            _gameState.PlacedRectangles.Add(rectangle);
-            return rectangle;
-        }
-
-        private void OnScoreChanged()
-        {
-            ScoreChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void OnRectangleEnclosed(List<RectangleStructure> rectangle)
-        {
-            RectangleEnclosed?.Invoke(this, new CustomEventArgs<List<RectangleStructure>>(rectangle));
-        }
-
-        private void IsGameEnded()
-        {
-            foreach (LineStructure line in _gameState.LineList)
-            {
-                if (!IsLineColored(line))
-                {
-                    if (_ai != null && TurnId == 1)
-                    {
-                        OnAiTurn();
-                    }
-                    return;
-                }
-            }
-            OnGameEnded();
+            InitTurn();
         }
 
         private void WriteGameState(bool isEnded)
         {
             if (DataProvider.GameStates.Count != 0 && !DataProvider.GameStates[^1].IsEnded)
-            {
                 DataProvider.RemoveLastElement();
-            }
             _gameState.IsEnded = isEnded;
             _gameState.Length = TimeElapsed;
 
             DataProvider.AddElement(_gameState);
             DataProvider.CommitChanges();
-        }
-
-        private void OnGameEnded()
-        {
-            WriteGameState(true);
-            GameEnded?.Invoke(this, EventArgs.Empty);
         }
     }
 }

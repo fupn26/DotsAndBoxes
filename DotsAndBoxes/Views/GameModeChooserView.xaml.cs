@@ -18,7 +18,7 @@ namespace DotsAndBoxes.Views
         {
             if (sender is MaterialDesignThemes.Wpf.DialogHost dialog)
             {
-                if(Player1.Text == "")
+                if (Player1.Text == "")
                 {
                     dialog.IsOpen = true;
                 }
@@ -32,7 +32,7 @@ namespace DotsAndBoxes.Views
 
         private void AcceptButton_Click(object sender, RoutedEventArgs e)
         {
-            if(String.IsNullOrEmpty(Player1.Text))
+            if (String.IsNullOrEmpty(Player1.Text))
             {
                 return;
             }

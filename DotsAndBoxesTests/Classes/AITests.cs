@@ -38,7 +38,7 @@ namespace DotsAndBoxesTests.Classes
             };
 
             ai.ChooseLine();
-            var actual = ai.ChoosedLine;
+            var actual = ai.ChosenLine;
 
             Assert.AreEqual(expected, actual, "The chosen line is not a 'Two shot' line!");
         }
@@ -58,7 +58,7 @@ namespace DotsAndBoxesTests.Classes
 
                 new LineStructure() { X1 = 0, Y1 = 0, X2 = 0, Y2 = 10, StrokeColor = white },
                 new LineStructure() { X1 = 10, Y1 = 0, X2 = 10, Y2 = 10, StrokeColor = white },
-                new LineStructure() { X1 = 20, Y1 = 0, X2 = 20, Y2 = 10, StrokeColor = blue },
+                new LineStructure() { X1 = 20, Y1 = 0, X2 = 20, Y2 = 10, StrokeColor = white },
                 new LineStructure() { X1 = 10, Y1 = 10, X2 = 10, Y2 = 20, StrokeColor = blue }
             };
             var expected = new LineStructure() { X1 = 0, Y1 = 10, X2 = 0, Y2 = 20, StrokeColor = white };
@@ -70,7 +70,7 @@ namespace DotsAndBoxesTests.Classes
             };
 
             ai.ChooseLine();
-            var actual = ai.ChoosedLine;
+            var actual = ai.ChosenLine;
 
             Assert.AreEqual(expected, actual, "The chosen line is not the 'One shot' line!");
         }
@@ -104,7 +104,7 @@ namespace DotsAndBoxesTests.Classes
             };
 
             ai.ChooseLine();
-            var actual = ai.ChoosedLine;
+            var actual = ai.ChosenLine;
 
             Assert.IsTrue((expected1.Equals(actual) || expected2.Equals(actual) || expected3.Equals(actual)), "The chosen line is not a second line of a rectangle!");
         }
@@ -138,7 +138,7 @@ namespace DotsAndBoxesTests.Classes
             };
 
             ai.ChooseLine();
-            var actual = ai.ChoosedLine;
+            var actual = ai.ChosenLine;
 
             Assert.IsTrue(expected1.Equals(actual) ||
                           expected2.Equals(actual) ||

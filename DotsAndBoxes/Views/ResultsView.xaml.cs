@@ -1,10 +1,10 @@
-﻿using DotsAndBoxes.Classes;
-using System.Windows;
+﻿using System.Windows;
+using DotsAndBoxes.Classes;
 
 namespace DotsAndBoxes.Views
 {
     /// <summary>
-    /// Interaction logic for ResultsView.xaml
+    ///     Interaction logic for ResultsView.xaml
     /// </summary>
     public partial class ResultsView
     {
@@ -13,7 +13,7 @@ namespace DotsAndBoxes.Views
             InitializeComponent();
             var last = new ResultDisplayer(DataProvider.GameStates[^1]);
             LastGame.Children.Add(last);
-            for (int i = DataProvider.GameStates.Count-2; i >= 0; --i)
+            for (var i = DataProvider.GameStates.Count - 2; i >= 0; --i)
             {
                 var prev = new ResultDisplayer(DataProvider.GameStates[i]);
                 prev.Scale.CenterX = prev.Width / 2;
@@ -28,14 +28,14 @@ namespace DotsAndBoxes.Views
             NavigationService?.Navigate(new WelcomeView());
         }
 
-        private void RematchButton_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService?.Navigate(new GameView());
-        }
-
         private void QuitButton_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();
+        }
+
+        private void RematchButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new GameView());
         }
     }
 }

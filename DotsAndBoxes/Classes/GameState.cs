@@ -1,6 +1,6 @@
-﻿using DotsAndBoxes.Enums;
+﻿using System.Collections.Generic;
+using DotsAndBoxes.Enums;
 using DotsAndBoxes.Structures;
-using System.Collections.Generic;
 
 namespace DotsAndBoxes.Classes
 {
@@ -26,6 +26,5 @@ namespace DotsAndBoxes.Classes
             PlacedRectangles = new List<RectangleStructure>();
             LineList = new List<LineStructure>();
         }
-
     }
 }

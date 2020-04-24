@@ -1,14 +1,13 @@
-﻿using DotsAndBoxes.Classes;
-using System;
+﻿using System;
+using DotsAndBoxes.Classes;
 
 namespace DotsAndBoxes.Views
 {
     /// <summary>
-    /// Interaction logic for ResultDisplayer.xaml
+    ///     Interaction logic for ResultDisplayer.xaml
     /// </summary>
     public partial class ResultDisplayer
     {
-
         public ResultDisplayer()
         {
             InitializeComponent();
@@ -25,9 +24,9 @@ namespace DotsAndBoxes.Views
             Player2Score.Text = gameState.Scores[1].ToString();
             GameMode.Text = gameState.GameMode.ToString();
             GameType.Text = gameState.GameType.ToString();
-            string size = gameState.GridSize.ToString();
+            var size = gameState.GridSize.ToString();
             GridSize.Text = size + "x" + size;
-            TimeSpan time = TimeSpan.FromSeconds(gameState.Length);
+            var time = TimeSpan.FromSeconds(gameState.Length);
             Length.Text = time.ToString("mm':'ss");
         }
     }

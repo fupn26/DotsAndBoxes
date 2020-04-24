@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="WhiteSmoke" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Initialized="Window_Initialized">
+        Title="Dots and Boxes" SizeToContent="WidthAndHeight" Background="WhiteSmoke" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Initialized="Window_Initialized" Closing="Window_Closing">
     <Grid>
         <Frame x:Name="MainFrame" ContentRendered="MainFrame_ContentRendered" Navigated="MainFrame_Navigated"></Frame>
     </Grid>
