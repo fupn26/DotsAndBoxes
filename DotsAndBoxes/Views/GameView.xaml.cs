@@ -1,19 +1,12 @@
 ﻿using DotsAndBoxes.Classes;
 using DotsAndBoxes.CustomEventArgs;
-using DotsAndBoxes.Enums;
 using DotsAndBoxes.Structures;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Point = System.Drawing.Point;
@@ -30,6 +23,8 @@ namespace DotsAndBoxes.Views
 
         public event EventHandler<CustomEventArgs<LineStructure>> LineClicked;
 
+        public event EventHandler RectangleDrawn;
+
         private GameController gameController;
 
         private bool isCanvasEnabled;
@@ -37,6 +32,8 @@ namespace DotsAndBoxes.Views
         private DispatcherTimer _timer;
 
         private Line _lastLine;
+
+        private int _snackShownTime;
 
 
         public GameView()
@@ -58,6 +55,7 @@ namespace DotsAndBoxes.Views
             RestartGame += gameController.Windows_RestartGame;
             SaveGame += gameController.Window_SaveGame;
             LineClicked += gameController.Window_LineClicked;
+            RectangleDrawn += gameController.Window_RectangleDrawn;
             gameController.Initialize(canvas.Height, canvas.Width);
 
             isCanvasEnabled = true;
@@ -79,7 +77,11 @@ namespace DotsAndBoxes.Views
 
         private void DisplayPlayersName(ReadOnlyCollection<string> names)
         {
+            Player1Name.Icon = names[0][0];
+            Player1Name.IconBackground = Brushes.DarkBlue;
             Player1Name.Content = names[0];
+            Player2Name.Icon = names[1][0];
+            Player2Name.IconBackground = Brushes.DarkRed;
             Player2Name.Content = names[1];
         }
 
@@ -149,9 +151,23 @@ namespace DotsAndBoxes.Views
             }
         }
 
+        private void CheckSaveGameSnack()
+        {
+            if (SaveGameSnack.IsActive == false)
+            {
+                return;
+            }
+            if (_snackShownTime == 5)
+            {
+                SaveGameSnack.IsActive = false;
+            }
+            ++_snackShownTime;
+        }
+
         private void Timer_Tick(object sender, EventArgs e)
         {
             UpdateTimerText();
+            CheckSaveGameSnack();
             gameController.TimeElapsed += 1;
         }
 
@@ -223,6 +239,13 @@ namespace DotsAndBoxes.Views
             Canvas.SetTop(rect, rectangle.RefPoint.Y + (gameController.GameHeight - rect.Height) / 2);
             Canvas.SetLeft(rect, rectangle.RefPoint.X + (gameController.GameWidth - rect.Width) / 2);
             canvas.Children.Add(rect);
+
+            OnRectangleDrawn();
+        }
+
+        private void OnRectangleDrawn()
+        {
+            RectangleDrawn?.Invoke(this, EventArgs.Empty);
         }
 
         private void DrawLines()
@@ -366,6 +389,7 @@ namespace DotsAndBoxes.Views
         private void OnSaveGameState()
         {
             SaveGameSnack.IsActive = true;
+            _snackShownTime = 0;
             SaveGame?.Invoke(this, EventArgs.Empty);
         }
 

@@ -20,11 +20,14 @@ namespace DotsAndBoxes.Views
     /// </summary>
     public partial class ResultsView : Page
     {
-        public ObservableCollection<GameState> PrevGameStates { get; }
         public ResultsView()
         {
             InitializeComponent();
-            PrevGameStates = new ObservableCollection<GameState>(DataProvider.GameStates);
+            LastGame.Children.Add(new ResultDisplayer(DataProvider.GameStates[^1]));
+            for (int i = 1; i < DataProvider.GameStates.Count; ++i)
+            {
+                PrevGames.Children.Add(new ResultDisplayer(DataProvider.GameStates[i]));
+            }
         }
     }
 }

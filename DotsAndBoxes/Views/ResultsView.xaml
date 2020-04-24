@@ -5,21 +5,16 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:DotsAndBoxes.Views"
       mc:Ignorable="d" 
-      Title="ResultsView">
+      Title="ResultsView" Width="600" Height="Auto" Background="WhiteSmoke">
 
-    <Grid>
-        <ScrollViewer>
-            <ListView ItemsSource="{Binding PrevGameStates}">
-                <GridView>
-                    <GridViewColumn DisplayMemberBinding="{Binding Player1}" Header="Player1"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Score[0]}" Header="Player1 Score"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Score[1]}" Header="PLayer2 Score"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Player2}" Header="Player2"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding Length}" Header="Length"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding GameMode}" Header="Game Mode"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding GameType}" Header="Game Type"/>
-                </GridView>
-            </ListView>
+    <StackPanel>
+        <TextBlock 
+            Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+            HorizontalAlignment="Center" Margin="10">Game is ended</TextBlock>
+        <StackPanel x:Name="LastGame" Margin="20"></StackPanel>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" MaxHeight="300">
+            <StackPanel x:Name="PrevGames">
+            </StackPanel>
         </ScrollViewer>
-    </Grid>
+    </StackPanel>
 </Page>

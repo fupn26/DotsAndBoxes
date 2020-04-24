@@ -418,7 +418,6 @@ namespace DotsAndBoxes.Classes
                 }
 
                 OnScoreChanged();
-                IsGameEnded();
             }
             else
             {
@@ -430,6 +429,10 @@ namespace DotsAndBoxes.Classes
                 OnAiTurn();
             }
 
+        }
+        public void Window_RectangleDrawn(object sender, EventArgs e)
+        {
+            IsGameEnded();
         }
 
         private void OnAiTurn()
