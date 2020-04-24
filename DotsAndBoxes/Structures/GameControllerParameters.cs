@@ -1,7 +1,4 @@
 ﻿using DotsAndBoxes.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DotsAndBoxes.Structures
 {

@@ -4,7 +4,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-      xmlns:local="clr-namespace:DotsAndBoxes.Views" xmlns:system1="clr-namespace:System;assembly=System.Runtime"
       mc:Ignorable="d" 
       Title="GameTypeChooserView" Background="WhiteSmoke" Height="400" Width="600">
 
@@ -48,22 +47,40 @@
                 </StackPanel>
             </StackPanel>
         </materialDesign:DialogHost.DialogContent>
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
 
-        <TextBlock  Style="{StaticResource MaterialDesignHeadline4TextBlock}" 
+            <Button Style="{StaticResource MaterialDesignFlatButton}"
+                x:Name="BackButton"
+                VerticalAlignment="Top" 
+                Grid.Column="0" Grid.Row="0" 
+                Grid.RowSpan="2"
+                Margin="10" Click="BackButton_Click">
+                <materialDesign:PackIcon Kind="ArrowBack" Foreground="Black" Width="25" Height="25" VerticalAlignment="Center"/>
+            </Button>
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1">
+
+                <TextBlock  Style="{StaticResource MaterialDesignHeadline4TextBlock}" 
                     HorizontalAlignment="Center"
                     Margin="20">Choose Game Mode</TextBlock>
-        <StackPanel Orientation="Horizontal">
-            <Button x:Name="SingleButton"
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="SingleButton"
                 Style="{StaticResource MaterialDesignFlatButton}"
                 materialDesign:ShadowAssist.ShadowDepth="Depth3"
                 Width="200"
                 Height="200"
                 Background="WhiteSmoke"
                 ToolTip="Single Player" Click="SingleButton_Click">
-                <materialDesign:PackIcon Kind="User" Width="150" Height="150" Foreground="Black"/>
-            </Button>
-            <Button x:Name="MultiButton"
+                        <materialDesign:PackIcon Kind="User" Width="150" Height="150" Foreground="Black"/>
+                    </Button>
+                    <Button x:Name="MultiButton"
                 Style="{StaticResource MaterialDesignFlatButton}"
                 Width="200"
                 Height="200"
@@ -71,9 +88,10 @@
                 Margin="0 0 0 0"
                 materialDesign:ShadowAssist.ShadowDepth="Depth3"
                 ToolTip="MultiPlayer" Click="MultiButton_Click">
-                <materialDesign:PackIcon Kind="UserGroup" Width="150" Height="150" Foreground="Black"/>
-            </Button>
-        </StackPanel>
-    </StackPanel>
+                        <materialDesign:PackIcon Kind="UserGroup" Width="150" Height="150" Foreground="Black"/>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
     </materialDesign:DialogHost>
 </Page>

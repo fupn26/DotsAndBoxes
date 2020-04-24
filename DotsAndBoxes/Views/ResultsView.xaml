@@ -2,18 +2,33 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:local="clr-namespace:DotsAndBoxes.Views"
       mc:Ignorable="d" 
       Title="ResultsView" Width="600" Height="Auto" Background="WhiteSmoke">
 
     <StackPanel>
-        <TextBlock 
-            Style="{StaticResource MaterialDesignHeadline4TextBlock}"
-            HorizontalAlignment="Center" Margin="10">Game is ended</TextBlock>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="1"
+                Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                HorizontalAlignment="Center" Margin="10">Game is ended</TextBlock>
+            <materialDesign:PopupBox Grid.Column="2" HorizontalAlignment="Right" StaysOpen="True" Margin="0 0 20 0">
+                <StackPanel>
+                    <Button x:Name="HomeButton" Click="HomeButton_Click">Home Page</Button>
+                    <Button x:Name="RematchButton" Click="RematchButton_Click">Rematch</Button>
+                    <Button x:Name="QuitButton" Click="QuitButton_Click">Quit</Button>
+                </StackPanel>
+            </materialDesign:PopupBox>
+        </Grid>
         <StackPanel x:Name="LastGame" Margin="20"></StackPanel>
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" MaxHeight="300">
-            <StackPanel x:Name="PrevGames">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" MaxHeight="300" Width="Auto"  HorizontalAlignment="Center">
+            <StackPanel x:Name="PrevGames" HorizontalAlignment="Center">
             </StackPanel>
         </ScrollViewer>
     </StackPanel>

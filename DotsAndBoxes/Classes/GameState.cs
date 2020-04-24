@@ -12,7 +12,7 @@ namespace DotsAndBoxes.Classes
 
         public string Player1 { get; set; }
         public string Player2 { get; set; }
-        public int TurnID { get; set; }
+        public int TurnId { get; set; }
         public int[] Scores { get; set; }
         public bool IsEnded { get; set; }
         public int Length { get; set; }

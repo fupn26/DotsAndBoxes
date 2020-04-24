@@ -3,13 +3,10 @@ using DotsAndBoxes.Structures;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
-using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace DotsAndBoxes.Classes
 {
-    public class AI : StateChecker
+    public class Ai : StateChecker
     {
         public List<LineStructure> LineList { get; set; }
         public LineStructure ChoosedLine { get; private set; }
@@ -17,7 +14,7 @@ namespace DotsAndBoxes.Classes
 
         public event EventHandler<CustomEventArgs<LineStructure>> LineChosen;
 
-        public AI(int gameHeight, int gameWidth)
+        public Ai(int gameHeight, int gameWidth)
         {
             GameHeight = gameHeight;
             GameWidth = gameWidth;
@@ -44,7 +41,7 @@ namespace DotsAndBoxes.Classes
 
             foreach (LineStructure line in LineList)
             {
-                if (BrushCompare(line.StrokeColor, _whiteBrushCode))
+                if (BrushCompare(line.StrokeColor, WhiteBrushCode))
                 {
                     Tuple<List<Point>, int> result = CheckState(line, LineList);
                     if (result.Item2 == 2)
@@ -60,7 +57,7 @@ namespace DotsAndBoxes.Classes
 
             foreach (LineStructure line in LineList)
             {
-                if (BrushCompare(line.StrokeColor, _whiteBrushCode))
+                if (BrushCompare(line.StrokeColor, WhiteBrushCode))
                 {
                     if (ChooseSecond(line))
                     {
@@ -98,7 +95,7 @@ namespace DotsAndBoxes.Classes
             {
                 ChoosedLine = LineList[_random.Next(size - 1)];
 
-            } while (!BrushCompare(ChoosedLine.StrokeColor, _whiteBrushCode));
+            } while (!BrushCompare(ChoosedLine.StrokeColor, WhiteBrushCode));
         }
 
         private bool FindLine(LineStructure refLine)
@@ -117,7 +114,7 @@ namespace DotsAndBoxes.Classes
         {
             foreach (LineStructure line in LineList)
             {
-                if (AreEqualLines(refLine, line) && !BrushCompare(line.StrokeColor, _whiteBrushCode))
+                if (AreEqualLines(refLine, line) && !BrushCompare(line.StrokeColor, WhiteBrushCode))
                 {
                     return 1;
                 }

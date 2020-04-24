@@ -1,23 +1,12 @@
 ﻿using DotsAndBoxes.Structures;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DotsAndBoxes.Views
 {
     /// <summary>
     /// Interaction logic for ChooseGrid.xaml
     /// </summary>
-    public partial class GridTypeChooserView : Page
+    public partial class GridTypeChooserView
     {
         public GridTypeChooserView()
         {
@@ -33,45 +22,50 @@ namespace DotsAndBoxes.Views
         private void NavigateToGameView()
         {
             GameView gameView = new GameView();
-            this.NavigationService.Navigate(gameView);
+            this.NavigationService?.Navigate(gameView);
             
         }
 
         private void Diamond3x3_Click(object sender, RoutedEventArgs e)
         {
-            SetTypeAndGridSize(Enums.GameType.DIAMOND, 3);
+            SetTypeAndGridSize(Enums.GameType.Diamond, 3);
             NavigateToGameView();
 
         }
 
         private void Diamond5x5_Click(object sender, RoutedEventArgs e)
         {
-            SetTypeAndGridSize(Enums.GameType.DIAMOND, 5);
+            SetTypeAndGridSize(Enums.GameType.Diamond, 5);
             NavigateToGameView();
         }
 
         private void Diamond7x7_Click(object sender, RoutedEventArgs e)
         {
-            SetTypeAndGridSize(Enums.GameType.DIAMOND, 7);
+            SetTypeAndGridSize(Enums.GameType.Diamond, 7);
             NavigateToGameView();
         }
 
         private void Classic3x3_Click(object sender, RoutedEventArgs e)
         {
-            SetTypeAndGridSize(Enums.GameType.CLASSIC, 3);
+            SetTypeAndGridSize(Enums.GameType.Classic, 3);
             NavigateToGameView();
         }
 
         private void Classic5x5_Click(object sender, RoutedEventArgs e)
         {
-            SetTypeAndGridSize(Enums.GameType.CLASSIC, 5);
+            SetTypeAndGridSize(Enums.GameType.Classic, 5);
             NavigateToGameView();
         }
 
         private void Classic6x6_Click(object sender, RoutedEventArgs e)
         {
-            SetTypeAndGridSize(Enums.GameType.CLASSIC, 6);
+            SetTypeAndGridSize(Enums.GameType.Classic, 6);
             NavigateToGameView();
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.GoBack();
         }
     }
 }

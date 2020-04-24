@@ -1,25 +1,13 @@
 ﻿using DotsAndBoxes.Classes;
-using DotsAndBoxes.Enums;
 using DotsAndBoxes.Structures;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DotsAndBoxes.Views
 {
     /// <summary>
     /// Interaction logic for WelcomeView.xaml
     /// </summary>
-    public partial class WelcomeView : Page
+    public partial class WelcomeView
     {
         public WelcomeView()
         {
@@ -51,25 +39,17 @@ namespace DotsAndBoxes.Views
 
             GameControllerParameters.IsNewGame = true;
 
-            this.NavigationService.Navigate(new GameModeChooserView());
+            NavigationService?.Navigate(new GameModeChooserView());
         }
 
-        private void Game_Loaded(object sender, RoutedEventArgs e)
-        {
-            if(sender is GameView game)
-            {
-                game.LoadComponents();
-            }
-        }
         private void Load_Click(object sender, RoutedEventArgs e)
         {
-            GameType lastGameType = DataProvider.GameStates[^1].GameType;
             GameControllerParameters.IsNewGame = false;
 
-            NavigationService.Navigate(CreateGameView(lastGameType));
+            NavigationService?.Navigate(CreateGameView());
         }
 
-        private GameView CreateGameView(GameType gameType)
+        private GameView CreateGameView()
         {
             GameView gameView = new GameView();
 
@@ -78,7 +58,7 @@ namespace DotsAndBoxes.Views
 
         private void Quit_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Application.Current.Shutdown();
+            Application.Current.Shutdown();
         }
 
     }

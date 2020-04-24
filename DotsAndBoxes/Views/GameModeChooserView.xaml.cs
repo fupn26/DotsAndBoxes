@@ -1,23 +1,13 @@
 ﻿using DotsAndBoxes.Structures;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DotsAndBoxes.Views
 {
     /// <summary>
     /// Interaction logic for GameTypeChooserView.xaml
     /// </summary>
-    public partial class GameModeChooserView : Page
+    public partial class GameModeChooserView
     {
         public GameModeChooserView()
         {
@@ -55,7 +45,7 @@ namespace DotsAndBoxes.Views
                 DialogHost.IsOpen = false;
                 GameControllerParameters.Player1 = Player1.Text;
                 GameControllerParameters.Player2 = Player2.Text;
-                this.NavigationService.Navigate(new GridTypeChooserView());
+                this.NavigationService?.Navigate(new GridTypeChooserView());
             }
         }
 
@@ -63,14 +53,19 @@ namespace DotsAndBoxes.Views
         {
             Player2Field.Visibility = Visibility.Collapsed;
             DialogHost.IsOpen = true;
-            GameControllerParameters.GameMode = Enums.GameMode.SINGLE;
+            GameControllerParameters.GameMode = Enums.GameMode.Single;
         }
 
         private void MultiButton_Click(object sender, RoutedEventArgs e)
         {
             Player2Field.Visibility = Visibility.Visible;
             DialogHost.IsOpen = true;
-            GameControllerParameters.GameMode = Enums.GameMode.MULTI;
+            GameControllerParameters.GameMode = Enums.GameMode.Multi;
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.GoBack();
         }
     }
 }

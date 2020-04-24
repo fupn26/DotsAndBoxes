@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Media;
 
 namespace DotsAndBoxes.Classes
@@ -18,11 +17,11 @@ namespace DotsAndBoxes.Classes
         {
             get
             {
-                return _gameState.TurnID;
+                return _gameState.TurnId;
             }
             private set
             {
-                _gameState.TurnID = value;
+                _gameState.TurnId = value;
             }
         }
 
@@ -38,15 +37,15 @@ namespace DotsAndBoxes.Classes
         public int TimeElapsed { get; set; }
 
         public event EventHandler ScoreChanged;
-        public event EventHandler<CustomEventArgs<RectangleStructure>> RectangleEnclosed;
+        public event EventHandler<CustomEventArgs<List<RectangleStructure>>> RectangleEnclosed;
         public event EventHandler RestartDone;
-        public event EventHandler<CustomEventArgs<List<LineStructure>>> AITurn;
+        public event EventHandler<CustomEventArgs<List<LineStructure>>> AiTurn;
         public event EventHandler GameEnded;
         public event EventHandler<CustomEventArgs<LineStructure>> LineColored;
         public event EventHandler<CustomEventArgs<ReadOnlyCollection<string>>> PlayerNameSet;
 
         private GameState _gameState;
-        private AI _ai;
+        private Ai _ai;
 
         private GameType _gameType;
         private GameMode _gameMode;
@@ -67,8 +66,6 @@ namespace DotsAndBoxes.Classes
             } 
         }
 
-        public GameController() { }
-
         public void Initialize(double canvasHeight, double canvasWidth)
         {
             _random = new Random();
@@ -77,18 +74,18 @@ namespace DotsAndBoxes.Classes
 
             if (GameControllerParameters.IsNewGame)
             {
-                StartNewGame(canvasHeight, canvasWidth);
+                StartNewGame(canvasWidth);
             }
             else
             {
-                ReadPreviousState(canvasWidth, canvasHeight);
+                ReadPreviousState(canvasHeight);
             }
             OnPlayerNameSet();
 
 
         }
 
-        private void StartNewGame(double canvasHeight, double canvasWidth)
+        private void StartNewGame(double canvasWidth)
         {
             _gameType = GameControllerParameters.GameType;
             _gameMode = GameControllerParameters.GameMode;
@@ -117,10 +114,10 @@ namespace DotsAndBoxes.Classes
 
         private void CreateAi()
         {
-            if (_gameMode == GameMode.SINGLE)
+            if (_gameMode == GameMode.Single)
             {
-                _ai = new AI(GameHeight, GameWidth);
-                AITurn += _ai.GameController_AITurn;
+                _ai = new Ai(GameHeight, GameWidth);
+                AiTurn += _ai.GameController_AITurn;
                 _ai.LineChosen += AI_LineChosen;
             }
         }
@@ -147,7 +144,7 @@ namespace DotsAndBoxes.Classes
                 GameType = _gameType,
                 GameMode = _gameMode,
                 GridSize = _gridSize,
-                TurnID = _random.Next(2),
+                TurnId = _random.Next(2),
                 Player1 = GameControllerParameters.Player1,
                 Player2 = GameControllerParameters.Player2
             };
@@ -162,7 +159,7 @@ namespace DotsAndBoxes.Classes
             RestartDone?.Invoke(this, EventArgs.Empty);
         }
 
-        private void ReadPreviousState(double canvasHeight, double canvasWidth)
+        private void ReadPreviousState(double canvasWidth)
         {
             GameState gameState = DataProvider.GameStates[^1];
             _gameState = gameState;
@@ -207,15 +204,12 @@ namespace DotsAndBoxes.Classes
 
         private void RestorePlacedRectangles()
         {
-            foreach (RectangleStructure rectangle in _gameState.PlacedRectangles)
-            {
-                OnRectangleEnclosed(rectangle);
-            }
+            OnRectangleEnclosed(_gameState.PlacedRectangles);
         }
 
         public void CreateEllipsePositionList()
         {
-            if (_gameType == GameType.CLASSIC)
+            if (_gameType == GameType.Classic)
             {
                 CreateEllipsePositionListForClassicView();
             }
@@ -265,7 +259,7 @@ namespace DotsAndBoxes.Classes
 
         public void CreateLineList(string brush)
         {
-            if (_gameType == GameType.CLASSIC)
+            if (_gameType == GameType.Classic)
             {
                 CreateClassicGrid(brush);
             }
@@ -409,14 +403,16 @@ namespace DotsAndBoxes.Classes
             ColorChosenLine(line);
 
             Tuple<List<Point>, int> result = CheckState(line, _gameState.LineList);
-            _gameState.Scores[TurnId] += result.Item2;
             if (result.Item2 != 0)
             {
+                _gameState.Scores[TurnId] += result.Item2;
+                List<RectangleStructure> rects = new List<RectangleStructure>();
                 foreach (Point point in result.Item1)
                 {
-                    CreateNewRectangleStructure(point);
+                    rects.Add(CreateNewRectangleStructure(point));
                 }
 
+                OnRectangleEnclosed(rects);
                 OnScoreChanged();
             }
             else
@@ -424,10 +420,7 @@ namespace DotsAndBoxes.Classes
                 ChangeTurn();
             }
 
-            if (_ai != null && TurnId == 1)
-            {
-                OnAiTurn();
-            }
+            IsGameEnded();
 
         }
         public void Window_RectangleDrawn(object sender, EventArgs e)
@@ -437,7 +430,7 @@ namespace DotsAndBoxes.Classes
 
         private void OnAiTurn()
         {
-            AITurn?.Invoke(this, new CustomEventArgs<List<LineStructure>>(_gameState.LineList));
+            AiTurn?.Invoke(this, new CustomEventArgs<List<LineStructure>>(_gameState.LineList));
         }
 
         private void ColorChosenLine(LineStructure line)
@@ -459,7 +452,7 @@ namespace DotsAndBoxes.Classes
             LineColored?.Invoke(this, new CustomEventArgs<LineStructure>(line));
         }
 
-        private void CreateNewRectangleStructure(Point point)
+        private RectangleStructure CreateNewRectangleStructure(Point point)
         {
             RectangleStructure rectangle = new RectangleStructure
             {
@@ -470,7 +463,7 @@ namespace DotsAndBoxes.Classes
                 RadiusX = 8,
                 RadiusY = 8
             };
-            if (_gameState.TurnID == 0)
+            if (_gameState.TurnId == 0)
             {
                 rectangle.Fill = Brushes.DarkBlue.ToString();
 
@@ -480,7 +473,7 @@ namespace DotsAndBoxes.Classes
                 rectangle.Fill = Brushes.DarkRed.ToString();
             }
             _gameState.PlacedRectangles.Add(rectangle);
-            OnRectangleEnclosed(rectangle);
+            return rectangle;
         }
 
         private void OnScoreChanged()
@@ -488,9 +481,9 @@ namespace DotsAndBoxes.Classes
             ScoreChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void OnRectangleEnclosed(RectangleStructure rectangle)
+        private void OnRectangleEnclosed(List<RectangleStructure> rectangle)
         {
-            RectangleEnclosed?.Invoke(this, new CustomEventArgs<RectangleStructure>(rectangle));
+            RectangleEnclosed?.Invoke(this, new CustomEventArgs<List<RectangleStructure>>(rectangle));
         }
 
         private void IsGameEnded()
@@ -499,6 +492,10 @@ namespace DotsAndBoxes.Classes
             {
                 if (!IsLineColored(line))
                 {
+                    if (_ai != null && TurnId == 1)
+                    {
+                        OnAiTurn();
+                    }
                     return;
                 }
             }
@@ -507,6 +504,10 @@ namespace DotsAndBoxes.Classes
 
         private void WriteGameState(bool isEnded)
         {
+            if (DataProvider.GameStates.Count != 0 && !DataProvider.GameStates[^1].IsEnded)
+            {
+                DataProvider.RemoveLastElement();
+            }
             _gameState.IsEnded = isEnded;
             _gameState.Length = TimeElapsed;
 

@@ -2,9 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
 using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace DotsAndBoxes.Classes
 {
@@ -12,8 +10,8 @@ namespace DotsAndBoxes.Classes
     {
         public int GameWidth { get; protected set; }
         public int GameHeight { get; protected set; }
-        protected readonly string _blackBrushCode = Brushes.Black.ToString();
-        protected readonly string _whiteBrushCode = Brushes.White.ToString();
+        protected readonly string BlackBrushCode = Brushes.Black.ToString();
+        protected readonly string WhiteBrushCode = Brushes.White.ToString();
 
 
         protected bool AreEqualLines(LineStructure line1, LineStructure line2)
@@ -133,8 +131,8 @@ namespace DotsAndBoxes.Classes
 
         private bool IsPointsOfLine(LineStructure line, Point p1, Point p2)
         {
-            Point lineP1 = new Point((int)line.X1, (int)line.Y1);
-            Point lineP2 = new Point((int)line.X2, (int)line.Y2);
+            Point lineP1 = new Point(line.X1, line.Y1);
+            Point lineP2 = new Point(line.X2, line.Y2);
 
             if (lineP1.Equals(p1) && lineP2.Equals(p2) ||
                 lineP1.Equals(p2) && lineP2.Equals(p1))
@@ -157,18 +155,18 @@ namespace DotsAndBoxes.Classes
         private int IsSquare(LineStructure line1,
                              LineStructure line2,
                              bool isVertical,
-                             List<LineStructure> LineList,
-                             List<Point> PointList)
+                             List<LineStructure> lineList,
+                             List<Point> pointList)
         {
-            Point point1 = new Point((int)line1.X1, (int)line1.Y1);
-            Point point2 = new Point((int)line1.X2, (int)line1.Y2);
-            Point point3 = new Point((int)line2.X1, (int)line2.Y1);
-            Point point4 = new Point((int)line2.X2, (int)line2.Y2);
+            Point point1 = new Point(line1.X1, line1.Y1);
+            Point point2 = new Point(line1.X2, line1.Y2);
+            Point point3 = new Point(line2.X1, line2.Y1);
+            Point point4 = new Point(line2.X2, line2.Y2);
 
             int counter = 0;
             if (isVertical)
             {
-                foreach (LineStructure element in LineList)
+                foreach (LineStructure element in lineList)
                 {
                     if (element.Y1 == element.Y2)
                     {
@@ -187,7 +185,7 @@ namespace DotsAndBoxes.Classes
             }
             else
             {
-                foreach (LineStructure element in LineList)
+                foreach (LineStructure element in lineList)
                 {
                     if (element.X1 == element.X2)
                     {
@@ -211,7 +209,7 @@ namespace DotsAndBoxes.Classes
             }
             else
             {
-                PointList.Add(MinPoint(point1, point2, point3, point4));
+                pointList.Add(MinPoint(point1, point2, point3, point4));
                 return 1;
             }
         }

@@ -4,9 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:local="clr-namespace:DotsAndBoxes.Views"
              mc:Ignorable="d" 
              Height="Auto" Width="550" Background="WhiteSmoke">
+    <UserControl.RenderTransform>
+        <ScaleTransform x:Name="Scale"/>
+    </UserControl.RenderTransform>
+    <UserControl.LayoutTransform>
+        <ScaleTransform x:Name="LayoutScale"/>
+    </UserControl.LayoutTransform>
     <Expander ExpandDirection="Down" IsExpanded="False">
         <Expander.Header >
             <Grid>
@@ -106,7 +111,7 @@
                            FontWeight="DemiBold">Length:</TextBlock>
                 <TextBlock x:Name="Length"
                            Grid.Row="1"
-                           Grid.Column="4"
+                           Grid.Column="3"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Left">10:10:10</TextBlock>
             </Grid>

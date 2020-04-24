@@ -1,9 +1,6 @@
-﻿using DotsAndBoxes.Structures;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 
 namespace DotsAndBoxes.Classes
@@ -53,9 +50,8 @@ namespace DotsAndBoxes.Classes
         }
         private static void WriteJson()
         {
-            string jsonString;
-            string v = JsonSerializer.Serialize<List<GameState>>(_gameStates);
-            jsonString = v;
+            var v = JsonSerializer.Serialize(_gameStates);
+            var jsonString = v;
             File.WriteAllText(fileName, jsonString);
         }
     }

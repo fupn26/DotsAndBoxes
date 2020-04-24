@@ -1,16 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DotsAndBoxes.Classes;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Shapes;
+﻿using System.Collections.Generic;
 using System.Windows.Media;
+using DotsAndBoxes.Classes;
 using DotsAndBoxes.Structures;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DotsAndBoxes.Classes.Tests
+namespace DotsAndBoxesTests.Classes
 {
     [TestClass()]
-    public class AITests
+    public class AiTests
     {
         string red = Brushes.Red.ToString();
         string blue = Brushes.Blue.ToString();
@@ -35,7 +32,7 @@ namespace DotsAndBoxes.Classes.Tests
             var expected = new LineStructure() { X1 = 10, Y1 = 0, X2 = 10, Y2 = 10, StrokeColor = white};
             lineList.Add(expected);
 
-            var ai = new AI(10, 10)
+            var ai = new Ai(10, 10)
             {
                 LineList = lineList
             };
@@ -67,7 +64,7 @@ namespace DotsAndBoxes.Classes.Tests
             var expected = new LineStructure() { X1 = 0, Y1 = 10, X2 = 0, Y2 = 20, StrokeColor = white };
             lineList.Add(expected);
 
-            var ai = new AI(10, 10)
+            var ai = new Ai(10, 10)
             {
                 LineList = lineList
             };
@@ -101,7 +98,7 @@ namespace DotsAndBoxes.Classes.Tests
             lineList.Add(expected2);
             lineList.Add(expected3);
 
-            var ai = new AI(10, 10)
+            var ai = new Ai(10, 10)
             {
                 LineList = lineList
             };
@@ -135,7 +132,7 @@ namespace DotsAndBoxes.Classes.Tests
             lineList.Add(expected3);
             lineList.Add(expected4);
 
-            var ai = new AI(10, 10)
+            var ai = new Ai(10, 10)
             {
                 LineList = lineList
             };
