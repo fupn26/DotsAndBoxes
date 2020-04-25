@@ -74,13 +74,6 @@ namespace DotsAndBoxes.Views
             _timer.Start();
         }
 
-        private void CheckSaveGameSnack()
-        {
-            if (SaveGameSnack.IsActive == false) return;
-            if (_snackShownTime == 5) SaveGameSnack.IsActive = false;
-            ++_snackShownTime;
-        }
-
         private void ColorLine(Line line, string brush)
         {
             line.Stroke = (Brush) new BrushConverter().ConvertFromString(brush);
@@ -296,8 +289,7 @@ namespace DotsAndBoxes.Views
 
         private void OnSaveGameState()
         {
-            SaveGameSnack.IsActive = true;
-            _snackShownTime = 0;
+            SaveGameSnack.MessageQueue.Enqueue("Game Saved");
             SaveGame?.Invoke(this, EventArgs.Empty);
         }
 
@@ -356,7 +348,6 @@ namespace DotsAndBoxes.Views
         private void Timer_Tick(object sender, EventArgs e)
         {
             UpdateTimerText();
-            CheckSaveGameSnack();
             _gameController.TimeElapsed += 1;
         }
 

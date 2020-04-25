@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using DotsAndBoxes.Classes;
+using DotsAndBoxes.Structures;
 
 namespace DotsAndBoxes.Views
 {
@@ -23,6 +24,20 @@ namespace DotsAndBoxes.Views
             }
         }
 
+        private void FillGameContParameters()
+        {
+            if (!GameControllerParameters.IsNewGame)
+            {
+                var last = DataProvider.GameStates[^1];
+                GameControllerParameters.IsNewGame = true;
+                GameControllerParameters.GameMode = last.GameMode;
+                GameControllerParameters.GameType = last.GameType;
+                GameControllerParameters.GridSize = last.GridSize;
+                GameControllerParameters.Player1 = last.Player1;
+                GameControllerParameters.Player2 = last.Player2;
+            }
+        }
+
         private void HomeButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new WelcomeView());
@@ -35,6 +50,7 @@ namespace DotsAndBoxes.Views
 
         private void RematchButton_Click(object sender, RoutedEventArgs e)
         {
+            FillGameContParameters();
             NavigationService?.Navigate(new GameView());
         }
     }

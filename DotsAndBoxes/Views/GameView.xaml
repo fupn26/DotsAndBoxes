@@ -38,66 +38,72 @@
                 </StackPanel>
             </StackPanel>
         </materialDesign:DialogHost.DialogContent>
-        <StackPanel Height="Auto" Width="Auto">
-            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Center">
-                <materialDesign:Card Margin="0 10 0 0" UniformCornerRadius="6" Height="60" Width="200">
-                    <TextBlock x:Name="Timer" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="50" Foreground="DarkBlue" Height="75" ></TextBlock>
-                </materialDesign:Card>
-            </StackPanel>
-            <StackPanel Margin="10 0 10 0" Orientation="Horizontal">
-                <StackPanel VerticalAlignment="Center">
-                    <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
-                        <TextBlock x:Name="ScorePlayer1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkBlue" Height="100" ></TextBlock>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Height="Auto" Width="Auto" Grid.Row="0">
+                <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Center">
+                    <materialDesign:Card Margin="0 10 0 0" UniformCornerRadius="6" Height="60" Width="200">
+                        <TextBlock x:Name="Timer" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="50" Foreground="DarkBlue" Height="75" ></TextBlock>
                     </materialDesign:Card>
-                    <materialDesign:Chip Margin="10" x:Name="Player1Name"
+                </StackPanel>
+                <StackPanel Margin="10 0 10 0" Orientation="Horizontal">
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
+                            <TextBlock x:Name="ScorePlayer1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkBlue" Height="100" ></TextBlock>
+                        </materialDesign:Card>
+                        <materialDesign:Chip Margin="10" x:Name="Player1Name"
                     Icon="1" Width="100"/>
-                </StackPanel>
-                <materialDesign:Card Margin="20" UniformCornerRadius="6">
-                    <Canvas x:Name ="Canvas" Background="White" Width="420" Height="420" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"></Canvas>
-                </materialDesign:Card>
-                <StackPanel VerticalAlignment="Center">
-                    <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
-                        <TextBlock x:Name="ScorePlayer2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkRed" Height="100" ></TextBlock>
+                    </StackPanel>
+                    <materialDesign:Card Margin="20" UniformCornerRadius="6">
+                        <Canvas x:Name ="Canvas" Background="White" Width="420" Height="420" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"></Canvas>
                     </materialDesign:Card>
-                    <materialDesign:Chip x:Name="Player2Name"
+                    <StackPanel VerticalAlignment="Center">
+                        <materialDesign:Card UniformCornerRadius="6" Height="76" Width="83">
+                            <TextBlock x:Name="ScorePlayer2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="70" Foreground="DarkRed" Height="100" ></TextBlock>
+                        </materialDesign:Card>
+                        <materialDesign:Chip x:Name="Player2Name"
                     Icon="2" Width="100" Margin="10"/>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="0 0 0 20">
-                <Button x:Name="RestartButton" Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Margin="10" Click="RestartButton_Click">
-                    <materialDesign:PackIcon Kind="Replay" Height="40" Width="40" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Button>
-                <Button x:Name="PauseButton" Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Margin="10" Click="PauseButton_Click">
-                    <materialDesign:PackIcon x:Name="PauseButtonSign" Kind="Pause" Height="40" Width="40" HorizontalAlignment="Center" />
-                </Button>
-                <materialDesign:PopupBox
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Stretch" Margin="0 0 0 20">
+                    <Button x:Name="RestartButton" Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Margin="10" Click="RestartButton_Click">
+                        <materialDesign:PackIcon Kind="Replay" Height="40" Width="40" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Button>
+                    <Button x:Name="PauseButton" Style="{StaticResource MaterialDesignFloatingActionDarkButton}" Margin="10" Click="PauseButton_Click">
+                        <materialDesign:PackIcon x:Name="PauseButtonSign" Kind="Pause" Height="40" Width="40" HorizontalAlignment="Center" />
+                    </Button>
+                    <materialDesign:PopupBox
                 Style="{StaticResource MaterialDesignMultiFloatingActionAccentPopupBox}"
                 Margin="10" Opened="PopupBox_Opened" Closed="PopupBox_Closed">
-                    <materialDesign:PopupBox.ToggleContent>
-                        <materialDesign:PackIcon Kind="MoreHoriz" Width="40" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
-                    </materialDesign:PopupBox.ToggleContent>
-                    <materialDesign:PopupBox.ToggleCheckedContent>
-                        <materialDesign:PackIcon Kind="Close" Width="40" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
-                    </materialDesign:PopupBox.ToggleCheckedContent>
-                    <StackPanel x:Name="PopupBoxPanel" Visibility="Collapsed">
-                        <Button x:Name="HomeButton" Margin="0 0 0 5" Style="{StaticResource MaterialDesignFloatingActionLightButton}" ToolTip="Jump to Home Screen" ToolTipService.Placement="Right" ToolTipService.VerticalOffset="10" Click="HomeButton_Click">
-                            <materialDesign:PackIcon Kind="HomeOutline" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
-                        <Button x:Name="SaveButton" Margin="0 0 0 5" Style="{StaticResource MaterialDesignFloatingActionLightButton}" ToolTip="Save current state" ToolTipService.Placement="Right" ToolTipService.VerticalOffset="10" Click="SaveButton_Click">
-                            <materialDesign:PackIcon Kind="ContentSaveOutline" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
-                        <Button x:Name="ExitButton" Margin="0 0 0 0" Style="{StaticResource MaterialDesignFloatingActionLightButton}" ToolTip="Exit application" ToolTipService.Placement="Right" ToolTipService.VerticalOffset="10" Click="ExitButton_Click">
-                            <materialDesign:PackIcon Kind="ExitToApp" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
-                    </StackPanel>
-                </materialDesign:PopupBox>
+                        <materialDesign:PopupBox.ToggleContent>
+                            <materialDesign:PackIcon Kind="MoreHoriz" Width="40" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
+                        </materialDesign:PopupBox.ToggleContent>
+                        <materialDesign:PopupBox.ToggleCheckedContent>
+                            <materialDesign:PackIcon Kind="Close" Width="40" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
+                        </materialDesign:PopupBox.ToggleCheckedContent>
+                        <StackPanel x:Name="PopupBoxPanel" Visibility="Collapsed">
+                            <Button x:Name="HomeButton" Margin="0 0 0 5" Style="{StaticResource MaterialDesignFloatingActionLightButton}" ToolTip="Jump to Home Screen" ToolTipService.Placement="Right" ToolTipService.VerticalOffset="10" Click="HomeButton_Click">
+                                <materialDesign:PackIcon Kind="HomeOutline" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                            <Button x:Name="SaveButton" Margin="0 0 0 5" Style="{StaticResource MaterialDesignFloatingActionLightButton}" ToolTip="Save current state" ToolTipService.Placement="Right" ToolTipService.VerticalOffset="10" Click="SaveButton_Click">
+                                <materialDesign:PackIcon Kind="ContentSaveOutline" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                            <Button x:Name="ExitButton" Margin="0 0 0 0" Style="{StaticResource MaterialDesignFloatingActionLightButton}" ToolTip="Exit application" ToolTipService.Placement="Right" ToolTipService.VerticalOffset="10" Click="ExitButton_Click">
+                                <materialDesign:PackIcon Kind="ExitToApp" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </StackPanel>
+                    </materialDesign:PopupBox>
+                </StackPanel>
             </StackPanel>
-            <materialDesign:Snackbar
-            HorizontalAlignment="Center"
-            Message="Game Saved"
-            IsActive="False"
-            MessageQueue="{materialDesign:MessageQueue}"
-            x:Name="SaveGameSnack"/>
-        </StackPanel>
+            <materialDesign:Snackbar Grid.Row="0"
+                                     Grid.RowSpan="2"
+                                     HorizontalAlignment="Left"
+                                     VerticalAlignment="Top"
+                                     MessageQueue="{materialDesign:MessageQueue}"
+                                     x:Name="SaveGameSnack"/>
+        </Grid>
     </materialDesign:DialogHost>
 </Page>
