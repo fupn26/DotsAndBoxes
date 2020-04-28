@@ -52,6 +52,8 @@ namespace DotsAndBoxes.Views
             LineClicked += _gameController.Window_LineClicked;
             _gameController.Initialize(Canvas.Height, Canvas.Width);
 
+            SaveGameSnack.MessageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(1));
+
             _isCanvasEnabled = true;
 
             InitGame();

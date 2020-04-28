@@ -100,8 +100,8 @@
             </StackPanel>
             <materialDesign:Snackbar Grid.Row="0"
                                      Grid.RowSpan="2"
-                                     HorizontalAlignment="Left"
-                                     VerticalAlignment="Top"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Bottom"
                                      MessageQueue="{materialDesign:MessageQueue}"
                                      x:Name="SaveGameSnack"/>
         </Grid>
