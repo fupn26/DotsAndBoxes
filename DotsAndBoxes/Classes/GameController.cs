@@ -296,10 +296,8 @@ namespace DotsAndBoxes.Classes
                 OnRectangleEnclosed(rects);
                 OnScoreChanged();
             }
-            else
-            {
-                ChangeTurn();
-            }
+
+            ChangeTurn();
 
             IsGameEnded();
         }
